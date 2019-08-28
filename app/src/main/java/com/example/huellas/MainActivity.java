@@ -10,6 +10,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.huellas.data.SessionManager;
+import com.example.huellas.ui.views.MainViewActivity;
+
 
 public class MainActivity extends AppCompatActivity {
     public static final String USERNAME_MESSAGE = "com.example.huellas.USERNAME";
@@ -17,11 +20,13 @@ public class MainActivity extends AppCompatActivity {
     private EditText editTextUsername;
     private EditText editTextPassword;
     private Button loginButton;
+    private SessionManager session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        session = new SessionManager(this);
         editTextUsername =  findViewById(R.id.usernameText);
         editTextPassword =  findViewById(R.id.passwordText);
         loginButton = findViewById(R.id.login_button);
@@ -31,13 +36,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sendMessage(View view) {
-        boolean statusLogin = checkStatus();
-        if(statusLogin) {
-            Intent intent = new Intent(this, DisplayMessageActivity.class);
+        boolean isAuthenticated = checkStatus();
+        if(isAuthenticated) {
+            Intent intent = new Intent(this, MainViewActivity.class);
             String strUsername = editTextUsername.getText().toString();
             String strPassword = editTextPassword.getText().toString();
             intent.putExtra(USERNAME_MESSAGE, strUsername);
             intent.putExtra(PASSWORD_MESSAGE, strPassword);
+            session.setUsername(strUsername);
             startActivity(intent);
             return;
         }

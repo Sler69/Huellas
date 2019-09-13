@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_comparisons"
+        android:icon="@drawable/ic_compare_black_24dp"
+        android:title="Comparaciones" />
+    <item
+        android:id="@+id/nav_fingerprints"
+        android:icon="@drawable/ic_fingerprint_black_24dp"
+        android:title="Huellas"/>
+    <item
+        android:id="@+id/nav_new_comparison"
+        android:icon="@drawable/ic_compare_arrows_black_24dp"
+        android:title="Nueva Comparación"/>
+    <item
+        android:id="@+id/nav_new_fingerprint"
+        android:icon="@drawable/ic_add_circle_black_24dp"
+        android:title="Nueva Huellas"/>
+
+</menu>

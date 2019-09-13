@@ -12,6 +12,7 @@ import android.widget.EditText;
 
 import com.example.huellas.data.SessionManager;
 import com.example.huellas.ui.views.MainViewActivity;
+import com.example.huellas.ui.views.PrincipalActivity;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     public void sendMessage(View view) {
         boolean isAuthenticated = checkStatus();
         if(isAuthenticated) {
-            Intent intent = new Intent(this, MainViewActivity.class);
+            Intent intent = new Intent(this, PrincipalActivity.class);
             String strUsername = editTextUsername.getText().toString();
             String strPassword = editTextPassword.getText().toString();
             intent.putExtra(USERNAME_MESSAGE, strUsername);

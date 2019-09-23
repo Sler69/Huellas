@@ -6,6 +6,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.views.PrincipalActivity">
 
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview_id"
+        android:layout_width="match_parent"
+        android:layout_height="676dp" />
+
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"

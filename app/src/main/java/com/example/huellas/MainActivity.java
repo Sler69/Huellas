@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean checkStatus(){
         String strUserName = getUsernameString();
         String strPassword = getPasswordString();
-        if(strUserName.equals("test@test.com") && strPassword.equals("welcome1")){
+        if(strUserName.equals("1") && strPassword.equals("1")){
             return true;
         }
         return false;

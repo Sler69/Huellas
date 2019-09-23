@@ -14,13 +14,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.huellas.Huella;
+import com.example.huellas.Huella_adapter;
 import com.example.huellas.R;
 import com.example.huellas.ui.fragments.ComparisonFragment;
 import com.example.huellas.ui.fragments.FingerprintsFragment;
 import com.example.huellas.ui.fragments.NewComparisonFragment;
 import com.example.huellas.ui.fragments.NewFingerPrintFragment;
+import com.example.huellas.ui.fragments.RecyclerFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import asia.kanopi.fingerscan.Status;
 
@@ -31,6 +39,8 @@ public class PrincipalActivity extends AppCompatActivity {
     byte[] img;
     Bitmap bm;
     private static final int SCAN_FINGER = 0;
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +50,7 @@ public class PrincipalActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ComparisonFragment()).commit();
         tvMessage = (TextView) findViewById(R.id.tvMessage);
         ivFinger = (ImageView) findViewById(R.id.ivFingerDisplay);
+
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener navListener =
@@ -51,7 +62,7 @@ public class PrincipalActivity extends AppCompatActivity {
 
                 switch (menuItem.getItemId()){
                     case R.id.nav_comparisons:
-                        selectedFragment = new ComparisonFragment();
+                        selectedFragment = new RecyclerFragment();
                         break;
                     case R.id.nav_fingerprints:
                         selectedFragment = new FingerprintsFragment();

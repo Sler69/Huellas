@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,21 +13,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.huellas.Huella;
-import com.example.huellas.Huella_adapter;
 import com.example.huellas.R;
 import com.example.huellas.ui.fragments.ComparisonFragment;
 import com.example.huellas.ui.fragments.FingerprintsFragment;
-import com.example.huellas.ui.fragments.NewComparisonFragment;
-import com.example.huellas.ui.fragments.NewFingerPrintFragment;
-import com.example.huellas.ui.fragments.RecyclerFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import asia.kanopi.fingerscan.Status;
 
@@ -62,13 +51,10 @@ public class PrincipalActivity extends AppCompatActivity {
 
                 switch (menuItem.getItemId()){
                     case R.id.nav_comparisons:
-                        selectedFragment = new RecyclerFragment();
+                        selectedFragment = new ComparisonFragment();
                         break;
                     case R.id.nav_fingerprints:
                         selectedFragment = new FingerprintsFragment();
-                        break;
-                    case R.id.nav_new_comparison:
-                        selectedFragment = new NewComparisonFragment();
                         break;
                 }
 

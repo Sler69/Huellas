@@ -12,20 +12,22 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.huellas.R;
+import com.example.huellas.models.Comparison;
+
 
 import java.util.ArrayList;
 
 public class RecyclerViewComparisonsAdapter extends RecyclerView.Adapter<RecyclerViewComparisonsAdapter.ViewHolder> {
     private static final String TAG = "RecyclerViewComparisons";
 
-    private ArrayList<String> arrayComparisonNames = new ArrayList<String>();
-    private ArrayList<String> arrayComparisonTitles = new ArrayList<String>();
-    private Context comparisonContext;
 
-    public RecyclerViewComparisonsAdapter (Context context, ArrayList<String> titles, ArrayList<String> names){
-        arrayComparisonNames = names;
-        arrayComparisonTitles = titles;
+
+    private Context comparisonContext;
+    private ArrayList<Comparison> arrayComparisons;
+
+    public RecyclerViewComparisonsAdapter (Context context, ArrayList<Comparison> comparisons){
         comparisonContext = context;
+        arrayComparisons  = comparisons;
     }
 
     @NonNull
@@ -39,28 +41,37 @@ public class RecyclerViewComparisonsAdapter extends RecyclerView.Adapter<Recycle
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Comparison current = arrayComparisons.get(position);
         Log.d(TAG, "onBindViewHolder: Rendering Item");
-        holder.comparisonTitle.setText(arrayComparisonTitles.get(position));
-        holder.comparisonName.setText(arrayComparisonNames.get(position));
+        holder.comparisonTitle.setText(current.getTitle());
+        holder.comparisonId.setText(current.getId());
+        holder.comparison1.setText(current.getFirstFingerPrint());
+        holder.comparison2.setText(current.getSecondFingerPrint());
+        holder.percentage.setText(current.getCoincidencePercentage().toString());
     }
 
     @Override
     public int getItemCount() {
-        return arrayComparisonNames.size();
+        return arrayComparisons.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView comparisonTitle;
-        TextView comparisonName;
+        TextView comparisonId;
+        TextView comparison1;
+        TextView comparison2;
+        TextView percentage;
         RelativeLayout parentLayout;
 
         public ViewHolder(View itemView){
             super(itemView);
             comparisonTitle = itemView.findViewById(R.id.comparison_title);
-            comparisonName = itemView.findViewById(R.id.comparison_name);
+            comparisonId = itemView.findViewById(R.id.comparison_id);
             parentLayout = itemView.findViewById(R.id.comparison_item_layout);
-
+            comparison1 = itemView.findViewById(R.id.comparison1_name);
+            comparison2 = itemView.findViewById(R.id.comparison2_name);
+            percentage = itemView.findViewById(R.id.percentage_comparison);
         }
     }
 

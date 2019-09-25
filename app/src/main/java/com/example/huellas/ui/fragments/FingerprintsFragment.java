@@ -17,7 +17,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.huellas.R;
 import com.example.huellas.models.Huella;
+import com.example.huellas.ui.views.ScanActivity;
 import com.example.huellas.ui.views.ShowFingerprintActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +34,13 @@ public class FingerprintsFragment extends Fragment {
         list.add(new Huella("Huella2", "Esta es la huella2" ,R.drawable.h2));
         list.add(new Huella("Huella3", "Esta es la huella3" ,R.drawable.h3));
         View view = inflater.inflate(R.layout.recycler_view_fragment, container, false);
-
+        FloatingActionButton fb = view.findViewById(R.id.floatingActionButton);
+        fb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().startActivity(new Intent(getContext(), ScanActivity.class));
+            }
+        });
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(new RecyclerViewAdapter(list));

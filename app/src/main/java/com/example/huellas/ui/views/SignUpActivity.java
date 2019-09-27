@@ -10,7 +10,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.huellas.MainActivity;
+import com.example.huellas.data.SessionManager;
+import com.example.huellas.ui.views.MainViewActivity;
 import com.example.huellas.R;
 
 public class SignUpActivity extends AppCompatActivity {
@@ -28,7 +29,15 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     public void verify(View view){
+        /*
+         */
+        String pass1=passwordText1.getText().toString();
+        String pass2=passwordText2.getText().toString();
 
-        passwordText2.setError("Passwords Don't Match");
+        if(pass1.equals(pass2)){
+            passwordText2.setError("Passwords Match");
+        } else {
+            passwordText2.setError("Passwords Don't Match");
+        }
     }
 }

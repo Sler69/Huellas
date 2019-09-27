@@ -13,6 +13,7 @@ import android.widget.EditText;
 import com.example.huellas.data.SessionManager;
 import com.example.huellas.ui.views.MainViewActivity;
 import com.example.huellas.ui.views.PrincipalActivity;
+import com.example.huellas.ui.views.SignUpActivity;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -50,6 +51,11 @@ public class MainActivity extends AppCompatActivity {
         }
         editTextUsername.setError("Wrong Username or password");
 
+    }
+
+    public void signUp(View view){
+        Intent intent = new Intent(this, SignUpActivity.class);
+        startActivity(intent);
     }
 
     private boolean checkStatus(){

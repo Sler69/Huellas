@@ -27,10 +27,8 @@ public class SignUpActivity extends AppCompatActivity {
         passwordText2 = findViewById(R.id.newPass2);
     }
 
-    public void verify(passwordText1.){
-        if(){
-            passwordText1.setError("Passwords Match");
-        }
-        passwordText1.setError("Passwords Don't Match");
+    public void verify(View view){
+
+        passwordText2.setError("Passwords Don't Match");
     }
 }

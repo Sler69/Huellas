@@ -19,62 +19,41 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/newPass1"
+        android:id="@+id/newPass"
         android:layout_width="350dp"
         android:layout_height="60dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="88dp"
         android:ems="10"
         android:hint="@string/password"
         android:inputType="textPassword"
+        app:layout_constraintBottom_toTopOf="@+id/signUp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/newUser" />
-
-    <EditText
-        android:id="@+id/newPass2"
-        android:layout_width="350dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="10dp"
-        android:ems="10"
-        android:hint="@string/confirm_password"
-        android:inputType="textPassword"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/newPass1" />
 
     <EditText
         android:id="@+id/newEmail"
         android:layout_width="350dp"
         android:layout_height="60dp"
-        android:layout_marginTop="10dp"
         android:ems="10"
         android:hint="@string/email"
         android:inputType="textEmailAddress"
+        app:layout_constraintBottom_toTopOf="@+id/newPass"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/newPass2" />
-
-    <EditText
-        android:id="@+id/newKey"
-        android:layout_width="350dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="10dp"
-        android:ems="10"
-        android:hint="@string/key"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/newEmail" />
+        app:layout_constraintTop_toBottomOf="@+id/newUser" />
 
     <Button
         android:id="@+id/signUp"
         android:layout_width="250dp"
         android:layout_height="60dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginBottom="304dp"
         android:onClick="verify"
         android:text="@string/sign_up"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/newKey" />
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

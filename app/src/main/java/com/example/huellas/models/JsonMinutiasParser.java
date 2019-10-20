@@ -6,8 +6,8 @@ import org.json.JSONArray;
 public class JsonMinutiasParser {
 
     private boolean success;
-    private Minutia[] minutias;
-    private String lastError;
+    private Minutia[] minutias = {};
+    private String lastError = "";
 
     public JsonMinutiasParser(String jsonResult){
         try{

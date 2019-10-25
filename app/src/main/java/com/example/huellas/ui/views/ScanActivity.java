@@ -5,12 +5,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
+import android.util.Base64;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -20,20 +24,31 @@ import android.widget.TextView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.huellas.API;
 import com.example.huellas.R;
+import com.example.huellas.RetrofitClient;
+import com.example.huellas.utils.PreferenceUtil;
 
-import java.io.BufferedReader;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.UUID;
 
 import asia.kanopi.fingerscan.Fingerprint;
 import asia.kanopi.fingerscan.Status;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ScanActivity extends AppCompatActivity {
     private TextView tvStatus;
@@ -41,8 +56,12 @@ public class ScanActivity extends AppCompatActivity {
     private Fingerprint fingerprint;
     private ImageView imageView;
     private Button button;
-    Bitmap bm;
-
+    private Button grayScaleButton;
+    private Button extractMinutae;
+    private Bitmap bm;
+    private Bitmap bm2;
+    private Boolean shiftImage = false;
+    private File imageToUpload;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,8 +71,13 @@ public class ScanActivity extends AppCompatActivity {
         tvStatus = (TextView) findViewById(R.id.tvStatus);
         tvError = (TextView) findViewById(R.id.tvError);
         imageView = findViewById(R.id.imageView);
-        button =findViewById(R.id.saveButton);
+        button = findViewById(R.id.saveButton);
+        grayScaleButton = findViewById(R.id.grayscale);
+        extractMinutae = findViewById(R.id.extractMinutiae);
         button.setVisibility(View.INVISIBLE);
+        grayScaleButton.setVisibility(View.INVISIBLE);
+
+
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
@@ -63,15 +87,124 @@ public class ScanActivity extends AppCompatActivity {
                showAlert();
             }
         });
+
+        grayScaleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchGrayScale();
+            }
+        });
+
+        extractMinutae.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                extractMinutiae();
+            }
+        });
+
         fingerprint = new Fingerprint();
 
+    }
+
+    public void extractMinutiae(){
+        API service = RetrofitClient.getRetrofit().create(API.class);
+        UUID randomId = UUID.randomUUID();
+        String encoded;
+        Bitmap bm = BitmapFactory.decodeResource(this.getResources(), R.drawable.finger1);
+        imageView.setImageBitmap(bm);
+        Bitmap bitmap = bm2;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG, 100 , bos);
+        byte[] bitmapdata = bos.toByteArray();
+        encoded = Base64.encodeToString(bitmapdata, Base64.DEFAULT);
+        /*
+        try{
+            imageToUpload = File.createTempFile(randomId.toString(), ".jpg", this.getCacheDir());
+
+            FileOutputStream fos = new FileOutputStream(imageToUpload);
+            fos.write(bitmapdata);
+            fos.flush();
+            fos.close();
+            */
+        /*}catch (IOException e){
+            e.printStackTrace();
+            return;
+        }
+        */
+        /*
+        RequestBody requestFile =
+                RequestBody.create(MediaType.parse("image/*"), imageToUpload);
+
+        MultipartBody.Part body =
+                MultipartBody.Part.createFormData("image", imageToUpload.getName(), requestFile);
+        */
+        String token = PreferenceUtil.getUser(this);
+        Call<ResponseBody> call = service.extract_minutiae("Bearer " + token,"impression","finger", encoded);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                String s = null;
+                imageToUpload.delete();
+                if(response.code() == 200 && response.body() != null){
+                    System.out.println("EVERYTHING WENT OKAY!!!!");
+                    System.out.println(response.body());
+                    s = response.body().toString();
+                    System.out.println("Response: " + s);
+                    tvError.setText(s);
+                }else{
+                    System.out.println("THERE WAS AN ERROR");
+                    System.out.println(response);
+                    if(response.errorBody() != null){
+                        s = "There is no error message but the response code is not 200.";
+                    }
+                    System.out.println("Response: " + s);
+                }
+                if(s != null){
+                    try {
+                        JSONArray minutaRawArray = new JSONArray(s);
+                        String information = minutaRawArray.toString();
+                        tvError.setText(information);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        JSONObject jsonObject = null;
+                        try {
+                            jsonObject = new JSONObject(s);
+                            String message = jsonObject.getString("message");
+                        } catch (JSONException ex) {
+                            ex.printStackTrace();
+                        }
+
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                System.out.println("Getting cause:" + t.getCause());
+                System.out.println("Fallo la conexion con el servidor " + t.getMessage());
+                System.out.println("Something failed" + Arrays.toString(t.getStackTrace()));
+                tvError.setText(t.getMessage());
+                call.cancel();
+            }
+        });
+    }
+
+    public void switchGrayScale(){
+        if(shiftImage){
+            imageView.setImageBitmap(bm);
+            shiftImage = false;
+            tvError.setText("Normal");
+        }else{
+            imageView.setImageBitmap(bm2);
+            shiftImage = true;
+            tvError.setText("GrayScale");
+        }
     }
 
     public void showAlert(){
         AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
         builder1.setMessage("Huella Registrada");
         builder1.setCancelable(true);
-
         builder1.setPositiveButton(
                 "Ok",
                 new DialogInterface.OnClickListener() {
@@ -157,22 +290,47 @@ public class ScanActivity extends AppCompatActivity {
             String errorMessage = "empty";
             int status = msg.getData().getInt("status");
             Intent intent = new Intent();
-            intent.putExtra("status", status);
+            intent.putExtra("status",
+                    status);
             if (status == Status.SUCCESS) {
                 image = msg.getData().getByteArray("img");
                 bm = BitmapFactory.decodeByteArray(image, 0, image.length);
                 imageView.setImageBitmap(bm);
+                bm2 = toGrayscale(bm);
                 button.setVisibility(View.VISIBLE);
+                grayScaleButton.setVisibility(View.VISIBLE);
+                extractMinutae.setVisibility(View.VISIBLE);
                 intent.putExtra("img", image);
             } else {
                 errorMessage = msg.getData().getString("errorMessage");
                 intent.putExtra("errorMessage", errorMessage);
             }
-            /*setResult(RESULT_OK, intent);
-            finish();*/
         }
     };
 
+
+    public Bitmap toGrayscale(Bitmap bmpOriginal)
+    {
+        //Custom color matrix to convert to GrayScale
+        float[] matrix = new float[]{
+                0.3f, 0.59f, 0.11f, 0, 0,
+                0.3f, 0.59f, 0.11f, 0, 0,
+                0.3f, 0.59f, 0.11f, 0, 0,
+                0, 0, 0, 1, 0,};
+
+        Bitmap dest = Bitmap.createBitmap(
+                bmpOriginal.getWidth(),
+                bmpOriginal.getHeight(),
+                Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(dest);
+        Paint paint = new Paint();
+        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
+        paint.setColorFilter(filter);
+        canvas.drawBitmap(bmpOriginal, 0, 0, paint);
+
+        return dest;
+    }
    /* private void checkExternalMedia(){
         boolean mExternalStorageAvailable = false;
         boolean mExternalStorageWriteable = false;

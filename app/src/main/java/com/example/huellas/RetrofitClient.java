@@ -1,5 +1,8 @@
 package com.example.huellas;
 
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -8,11 +11,17 @@ public class RetrofitClient {
     //Define the base URL
     private static final String BASE_URL = "http://10.48.13.35:3000/api/";
 
+
     //Create the Retrofit instance
     public static Retrofit getRetrofit(){
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .readTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .build();
         if(retrofit ==  null){
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
+                    .client(okHttpClient)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }

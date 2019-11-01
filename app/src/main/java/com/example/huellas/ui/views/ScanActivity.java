@@ -5,16 +5,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Base64;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -24,25 +19,23 @@ import android.widget.TextView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.huellas.API;
+import com.example.huellas.data.API;
 import com.example.huellas.R;
-import com.example.huellas.RetrofitClient;
+import com.example.huellas.data.RetrofitClient;
+import com.example.huellas.utils.ImageUtils;
 import com.example.huellas.utils.PreferenceUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.UUID;
 
 import asia.kanopi.fingerscan.Fingerprint;
 import asia.kanopi.fingerscan.Status;
-import okhttp3.MediaType;
+
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -55,13 +48,12 @@ public class ScanActivity extends AppCompatActivity {
     private TextView tvError;
     private Fingerprint fingerprint;
     private ImageView imageView;
-    private Button button;
-    private Button grayScaleButton;
+    private Button scanNewFingerprint;
+    private Button analyzeDefaultFingerprint;
     private Button extractMinutae;
-    private Bitmap bm;
-    private Bitmap bm2;
+    private Bitmap scannerBitmap;
     private Boolean shiftImage = false;
-    private File imageToUpload;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,34 +63,34 @@ public class ScanActivity extends AppCompatActivity {
         tvStatus = (TextView) findViewById(R.id.tvStatus);
         tvError = (TextView) findViewById(R.id.tvError);
         imageView = findViewById(R.id.imageView);
-        button = findViewById(R.id.saveButton);
-        grayScaleButton = findViewById(R.id.grayscale);
-        extractMinutae = findViewById(R.id.extractMinutiae);
-        button.setVisibility(View.INVISIBLE);
-        grayScaleButton.setVisibility(View.INVISIBLE);
+        scanNewFingerprint = findViewById(R.id.saveButton);
 
+        analyzeDefaultFingerprint = findViewById(R.id.defaultFingerprint);
+        extractMinutae = findViewById(R.id.extractMinutiae);
+        
+        extractMinutae.setVisibility(View.INVISIBLE);
 
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        button.setOnClickListener(new View.OnClickListener() {
+        scanNewFingerprint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               showAlert();
+               startScanner();
             }
         });
 
-        grayScaleButton.setOnClickListener(new View.OnClickListener() {
+        analyzeDefaultFingerprint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                switchGrayScale();
+                analyzeDefault();
             }
         });
 
         extractMinutae.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                extractMinutiae();
+                extractMinutiaeScanner();
             }
         });
 
@@ -106,104 +98,24 @@ public class ScanActivity extends AppCompatActivity {
 
     }
 
-    public void extractMinutiae(){
-        API service = RetrofitClient.getRetrofit().create(API.class);
-        UUID randomId = UUID.randomUUID();
-        String encoded;
-        Bitmap bm = BitmapFactory.decodeResource(this.getResources(), R.drawable.finger1);
-        imageView.setImageBitmap(bm);
-        Bitmap bitmap = bm2;
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG, 100 , bos);
-        byte[] bitmapdata = bos.toByteArray();
-        encoded = Base64.encodeToString(bitmapdata, Base64.DEFAULT);
-        /*
-        try{
-            imageToUpload = File.createTempFile(randomId.toString(), ".jpg", this.getCacheDir());
-
-            FileOutputStream fos = new FileOutputStream(imageToUpload);
-            fos.write(bitmapdata);
-            fos.flush();
-            fos.close();
-            */
-        /*}catch (IOException e){
-            e.printStackTrace();
-            return;
-        }
-        */
-        /*
-        RequestBody requestFile =
-                RequestBody.create(MediaType.parse("image/*"), imageToUpload);
-
-        MultipartBody.Part body =
-                MultipartBody.Part.createFormData("image", imageToUpload.getName(), requestFile);
-        */
-        String token = PreferenceUtil.getUser(this);
-        Call<ResponseBody> call = service.extract_minutiae("Bearer " + token,"impression","finger", encoded);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                String s = null;
-                imageToUpload.delete();
-                if(response.code() == 200 && response.body() != null){
-                    System.out.println("EVERYTHING WENT OKAY!!!!");
-                    System.out.println(response.body());
-                    s = response.body().toString();
-                    System.out.println("Response: " + s);
-                    tvError.setText(s);
-                }else{
-                    System.out.println("THERE WAS AN ERROR");
-                    System.out.println(response);
-                    if(response.errorBody() != null){
-                        s = "There is no error message but the response code is not 200.";
-                    }
-                    System.out.println("Response: " + s);
-                }
-                if(s != null){
-                    try {
-                        JSONArray minutaRawArray = new JSONArray(s);
-                        String information = minutaRawArray.toString();
-                        tvError.setText(information);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = new JSONObject(s);
-                            String message = jsonObject.getString("message");
-                        } catch (JSONException ex) {
-                            ex.printStackTrace();
-                        }
-
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                System.out.println("Getting cause:" + t.getCause());
-                System.out.println("Fallo la conexion con el servidor " + t.getMessage());
-                System.out.println("Something failed" + Arrays.toString(t.getStackTrace()));
-                tvError.setText(t.getMessage());
-                call.cancel();
-            }
-        });
+    public void startScanner(){
+        fingerprint.scan(this, printHandler, updateHandler);
     }
 
-    public void switchGrayScale(){
-        if(shiftImage){
-            imageView.setImageBitmap(bm);
-            shiftImage = false;
-            tvError.setText("Normal");
-        }else{
-            imageView.setImageBitmap(bm2);
-            shiftImage = true;
-            tvError.setText("GrayScale");
-        }
+    public void extractMinutiaeScanner(){
+        extractMinutiaeService(scannerBitmap);
     }
 
-    public void showAlert(){
+    public void analyzeDefault(){
+        extractMinutae.setVisibility(View.INVISIBLE);
+        Bitmap defaultImageBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.finger2);
+        imageView.setImageBitmap(defaultImageBitmap);
+        extractMinutiaeService(defaultImageBitmap);
+    }
+
+    public void showAlert(String message){
         AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
-        builder1.setMessage("Huella Registrada");
+        builder1.setMessage(message);
         builder1.setCancelable(true);
         builder1.setPositiveButton(
                 "Ok",
@@ -228,11 +140,6 @@ public class ScanActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onStart() {
-        fingerprint.scan(this, printHandler, updateHandler);
-        super.onStart();
-    }
 
     @Override
     protected void onStop() {
@@ -294,11 +201,9 @@ public class ScanActivity extends AppCompatActivity {
                     status);
             if (status == Status.SUCCESS) {
                 image = msg.getData().getByteArray("img");
-                bm = BitmapFactory.decodeByteArray(image, 0, image.length);
-                imageView.setImageBitmap(bm);
-                bm2 = toGrayscale(bm);
-                button.setVisibility(View.VISIBLE);
-                grayScaleButton.setVisibility(View.VISIBLE);
+                scannerBitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
+                scannerBitmap = ImageUtils.toGrayscale(scannerBitmap);
+                imageView.setImageBitmap(scannerBitmap);
                 extractMinutae.setVisibility(View.VISIBLE);
                 intent.putExtra("img", image);
             } else {
@@ -308,112 +213,74 @@ public class ScanActivity extends AppCompatActivity {
         }
     };
 
+    private void extractMinutiaeService(Bitmap imageBitmap){
+        UUID randomId = UUID.randomUUID();
+        MultipartBody.Part imageMultiPart = ImageUtils.bitmapToMultipart(randomId.toString(),imageBitmap, this);
+        String token = PreferenceUtil.getUser(this);
+        API service = RetrofitClient.getRetrofit().create(API.class);
 
-    public Bitmap toGrayscale(Bitmap bmpOriginal)
-    {
-        //Custom color matrix to convert to GrayScale
-        float[] matrix = new float[]{
-                0.3f, 0.59f, 0.11f, 0, 0,
-                0.3f, 0.59f, 0.11f, 0, 0,
-                0.3f, 0.59f, 0.11f, 0, 0,
-                0, 0, 0, 1, 0,};
+        RequestBody type1 =
+                RequestBody.create(
+                        okhttp3.MultipartBody.FORM, "impression");
+        RequestBody type2 =
+                RequestBody.create(
+                        okhttp3.MultipartBody.FORM, "finger");
 
-        Bitmap dest = Bitmap.createBitmap(
-                bmpOriginal.getWidth(),
-                bmpOriginal.getHeight(),
-                Bitmap.Config.ARGB_8888);
+        Call<ResponseBody> call = service.extract_minutiae("Bearer " + token,type1,type2, imageMultiPart);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                String s = null;
+                int responseCode = response.code();
 
-        Canvas canvas = new Canvas(dest);
-        Paint paint = new Paint();
-        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
-        paint.setColorFilter(filter);
-        canvas.drawBitmap(bmpOriginal, 0, 0, paint);
+                try {
+                    if(responseCode != 200 && response.errorBody() != null){
+                        showAlert(response.errorBody().string());
+                        return;
+                    }
 
-        return dest;
-    }
-   /* private void checkExternalMedia(){
-        boolean mExternalStorageAvailable = false;
-        boolean mExternalStorageWriteable = false;
-        String state = Environment.getExternalStorageState();
+                    if(responseCode != 200){
+                        showAlert("There was an error from the server try later");
+                        return;
+                    }
 
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            // Can read and write the media
-            mExternalStorageAvailable = mExternalStorageWriteable = true;
-        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            // Can only read the media
-            mExternalStorageAvailable = true;
-            mExternalStorageWriteable = false;
-        } else {
-            // Can't read or write
-            mExternalStorageAvailable = mExternalStorageWriteable = false;
-        }
-//        tv.append("\n\nExternal Media: readable="
-//                +mExternalStorageAvailable+" writable="+mExternalStorageWriteable);
-    }
+                    if(response.body() == null){
+                        showAlert("There was an error getting Minutae for the fingerprint");
+                        return;
+                    }
 
-    *//** Method to write ascii text characters to file on SD card. Note that you must add a
-     WRITE_EXTERNAL_STORAGE permission to the manifest file or this method will throw
-     a FileNotFound Exception because you won't have write permission. *//*
+                    s = response.body().string();
+                }catch (IOException e){
+                    e.printStackTrace();
+                    showAlert("There was an error parsing the response body");
+                }
 
-    private void writeToSDFile(){
+                try {
+                    JSONArray minutaRawArray = new JSONArray(s);
+                    String information = minutaRawArray.toString();
+                    tvError.setText(information);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(s);
+                        String message = jsonObject.getString("message");
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                    }
 
-        // Find the root of the external storage.
-        // See http://developer.android.com/guide/topics/data/data-  storage.html#filesExternal
-
-        File root = android.os.Environment.getExternalStorageDirectory();
-        //tv.append("\nExternal file system root: "+root);
-
-        // See http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
-
-        File dir = new File (root.getAbsolutePath() + "/download");
-        dir.mkdirs();
-        File file = new File(dir, "myData.txt");
-
-        try {
-            FileOutputStream f = new FileOutputStream(file);
-            PrintWriter pw = new PrintWriter(f);
-            pw.println("Hi , How are you");
-            pw.println("Hello");
-            pw.flush();
-            pw.close();
-            f.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Log.i(TAG, "******* File not found. Did you" +
-                    " add a WRITE_EXTERNAL_STORAGE permission to the   manifest?");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-       // tv.append("\n\nFile written to "+file);
-    }
-
-    *//** Method to read in a text file placed in the res/raw directory of the application. The
-     method reads in all lines of the file sequentially. *//*
-
-    private void readRaw() {
-        // tv.append("\nData read from res/raw/textfile.txt:");
-        InputStream is = this.getResources().openRawResource(R.textfile);
-        InputStreamReader isr = new InputStreamReader(is);
-        BufferedReader br = new BufferedReader(isr, 8192);    // 2nd arg is buffer size
-
-        // More efficient (less readable) implementation of above is the composite expression
-    *//*BufferedReader br = new BufferedReader(new InputStreamReader(
-            this.getResources().openRawResource(R.raw.textfile)), 8192);*//*
-
-        try {
-            String test;
-            while (true) {
-                test = br.readLine();
-                // readLine() returns null if no more lines in the file
-                if (test == null) break;
-                // tv.append("\n"+"    "+test);
+                }
             }
-            isr.close();
-            is.close();
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // tv.append("\n\nThat is all");
-    }*/
+
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                System.out.println("Getting cause:" + t.getCause());
+                System.out.println("Fallo la conexion con el servidor " + t.getMessage());
+                System.out.println("Something failed" + Arrays.toString(t.getStackTrace()));
+                tvError.setText(t.getMessage());
+                call.cancel();
+            }
+        });
+    }
 }

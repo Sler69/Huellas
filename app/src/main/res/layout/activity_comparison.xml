@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingTop="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:id="@+id/firstLabelError"
+            android:layout_width="700dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/firstComparisonImageView"
+            android:layout_width="fill_parent"
+            android:layout_height="260dp"
+            android:gravity="center_horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintHorizontal_bias="0.812"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/firstLabelError" />
+
+        <Button
+            android:id="@+id/buttonScanFirstFingerprint"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Scan First Fingerprint"
+            android:gravity="center_horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/firstComparisonImageView"/>
+
+        <TextView
+            android:id="@+id/secondLabelError"
+            android:layout_width="700dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonScanFirstFingerprint" />
+
+        <ImageView
+            android:id="@+id/secondComparisonImageView"
+            android:layout_width="fill_parent"
+            android:layout_height="260dp"
+            android:gravity="center_horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintHorizontal_bias="0.812"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/secondLabelError" />
+
+        <Button
+            android:id="@+id/buttonScanSecondFingerprint"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Scan Second Fingerprint"
+            android:gravity="center_horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/secondComparisonImageView" />
+
+        <Button
+            android:id="@+id/buttonCompareFingerprints"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Analyze Fingerprints"
+            android:gravity="center_horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonScanSecondFingerprint" />
+
+        <Button
+            android:id="@+id/buttonDefaultFingerprints"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Analyze Default FingerPrints"
+            app:layout_constraintStart_toStartOf="parent"
+            android:gravity="center_horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonCompareFingerprints"/>
+
+    </LinearLayout>
+</ScrollView >

@@ -6,17 +6,13 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.huellas.API;
-import com.example.huellas.RetrofitClient;
-import com.example.huellas.data.SessionManager;
-import com.example.huellas.ui.views.MainViewActivity;
+import com.example.huellas.data.API;
+import com.example.huellas.data.RetrofitClient;
 import com.example.huellas.R;
 import com.example.huellas.utils.PreferenceUtil;
 
@@ -24,7 +20,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.sql.SQLOutput;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;

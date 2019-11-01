@@ -30,6 +30,7 @@
         </activity>
         <activity android:name=".ui.views.ScanActivity"></activity>
         <activity android:name=".ui.views.SignUpActivity"></activity>
+        <activity android:name=".ui.views.ComparisonActivity"></activity>
     </application>
 
 </manifest>

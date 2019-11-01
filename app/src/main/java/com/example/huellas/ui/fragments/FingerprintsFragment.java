@@ -54,10 +54,6 @@ public class FingerprintsFragment extends Fragment {
         private TextView mTextView;
         private ImageView image;
 
-        public RecyclerViewHolder(View itemView){
-            super(itemView);
-        }
-
         public RecyclerViewHolder(LayoutInflater inflater, ViewGroup container){
             super(inflater.inflate(R.layout.card_view, container, false));
             mCardView = itemView.findViewById(R.id.card_container);

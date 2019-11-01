@@ -1,6 +1,7 @@
 package com.example.huellas.ui.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.huellas.R;
 import com.example.huellas.adapaters.RecyclerViewComparisonsAdapter;
 import com.example.huellas.models.Comparison;
+import com.example.huellas.ui.views.ComparisonActivity;
+import com.example.huellas.ui.views.ScanActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
@@ -28,6 +32,13 @@ public class ComparisonFragment extends Fragment {
         initializeComparison();
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view_comparisons);
         Context context = getContext();
+        FloatingActionButton fb = view.findViewById(R.id.newComparisonButton);
+        fb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().startActivity(new Intent(getContext(), ComparisonActivity.class));
+            }
+        });
         RecyclerViewComparisonsAdapter adapter = new RecyclerViewComparisonsAdapter(context, comparisons);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));

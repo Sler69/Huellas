@@ -3,6 +3,7 @@ package com.example.huellas.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 
@@ -17,7 +18,7 @@ import okhttp3.RequestBody;
 
 public class ImageUtils {
 
-    public static MultipartBody.Part bitmapToMultipart(String filename, Bitmap rawImage, Context context){
+    public static MultipartBody.Part bitmapToMultipart(String filename, Bitmap rawImage, String formDataName , Context context){
         File imageToUpload;
         MultipartBody.Part multiPartImage = null;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -39,17 +40,12 @@ public class ImageUtils {
 
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageToUpload);
 
-        multiPartImage = MultipartBody.Part.createFormData("fingerprint", imageToUpload.getName(), requestFile);
+        multiPartImage = MultipartBody.Part.createFormData(formDataName, imageToUpload.getName(), requestFile);
 
         return multiPartImage;
     }
 
     public static Bitmap toGrayscale(Bitmap bmpOriginal) {
-        float[] matrix = new float[]{
-                0.3f, 0.59f, 0.11f, 0, 0,
-                0.3f, 0.59f, 0.11f, 0, 0,
-                0.3f, 0.59f, 0.11f, 0, 0,
-                0, 0, 0, 1, 0,};
 
         Bitmap dest = Bitmap.createBitmap(
                 bmpOriginal.getWidth(),
@@ -58,10 +54,29 @@ public class ImageUtils {
 
         Canvas canvas = new Canvas(dest);
         Paint paint = new Paint();
-        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
+        ColorMatrix cm = new ColorMatrix();
+        cm.setSaturation(0);
+        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(cm);
         paint.setColorFilter(filter);
         canvas.drawBitmap(bmpOriginal, 0, 0, paint);
 
         return dest;
+    }
+
+    public static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+            return dir.delete();
+        } else if(dir!= null && dir.isFile()) {
+            return dir.delete();
+        } else {
+            return false;
+        }
     }
 }

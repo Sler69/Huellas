@@ -12,7 +12,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -53,6 +55,9 @@ public class ScanActivity extends AppCompatActivity {
     private Button extractMinutae;
     private Bitmap scannerBitmap;
     private Boolean shiftImage = false;
+    AlphaAnimation inAnimation;
+    AlphaAnimation outAnimation;
+    FrameLayout progressBarHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +69,8 @@ public class ScanActivity extends AppCompatActivity {
         tvError = (TextView) findViewById(R.id.tvError);
         imageView = findViewById(R.id.imageView);
         scanNewFingerprint = findViewById(R.id.saveButton);
+
+        progressBarHolder =  findViewById(R.id.progressBarScan);
 
         analyzeDefaultFingerprint = findViewById(R.id.defaultFingerprint);
         extractMinutae = findViewById(R.id.extractMinutiae);
@@ -109,8 +116,10 @@ public class ScanActivity extends AppCompatActivity {
     public void analyzeDefault(){
         extractMinutae.setVisibility(View.INVISIBLE);
         Bitmap defaultImageBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.finger2);
-        imageView.setImageBitmap(defaultImageBitmap);
-        extractMinutiaeService(defaultImageBitmap);
+        Bitmap grayscale = ImageUtils.toGrayscale(defaultImageBitmap);
+
+        imageView.setImageBitmap(grayscale);
+        extractMinutiaeService(grayscale);
     }
 
     public void showAlert(String message){
@@ -121,7 +130,7 @@ public class ScanActivity extends AppCompatActivity {
                 "Ok",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        finish();
+
                     }
                 });
         AlertDialog alert11 = builder1.create();
@@ -215,7 +224,7 @@ public class ScanActivity extends AppCompatActivity {
 
     private void extractMinutiaeService(Bitmap imageBitmap){
         UUID randomId = UUID.randomUUID();
-        MultipartBody.Part imageMultiPart = ImageUtils.bitmapToMultipart(randomId.toString(),imageBitmap, this);
+        MultipartBody.Part imageMultiPart = ImageUtils.bitmapToMultipart(randomId.toString(),imageBitmap,"fingerprint", this);
         String token = PreferenceUtil.getUser(this);
         API service = RetrofitClient.getRetrofit().create(API.class);
 
@@ -227,9 +236,11 @@ public class ScanActivity extends AppCompatActivity {
                         okhttp3.MultipartBody.FORM, "finger");
 
         Call<ResponseBody> call = service.extract_minutiae("Bearer " + token,type1,type2, imageMultiPart);
+        showProgressbar();
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                hideProgressbar();
                 String s = null;
                 int responseCode = response.code();
 
@@ -275,6 +286,7 @@ public class ScanActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                hideProgressbar();
                 System.out.println("Getting cause:" + t.getCause());
                 System.out.println("Fallo la conexion con el servidor " + t.getMessage());
                 System.out.println("Something failed" + Arrays.toString(t.getStackTrace()));
@@ -282,5 +294,26 @@ public class ScanActivity extends AppCompatActivity {
                 call.cancel();
             }
         });
+    }
+
+    private void showProgressbar(){
+        inAnimation = new AlphaAnimation(0f, 1f);
+        inAnimation.setDuration(200);
+        progressBarHolder.setAnimation(inAnimation);
+        progressBarHolder.setVisibility(View.VISIBLE);
+        scanNewFingerprint.setEnabled(false);
+        analyzeDefaultFingerprint.setEnabled(false);
+        extractMinutae.setEnabled(false);
+    }
+
+    private void hideProgressbar(){
+        outAnimation = new AlphaAnimation(1f, 0f);
+        outAnimation.setDuration(200);
+        progressBarHolder.setAnimation(outAnimation);
+        progressBarHolder.setVisibility(View.GONE);
+        scanNewFingerprint.setEnabled(true);
+        analyzeDefaultFingerprint.setEnabled(true);
+        extractMinutae.setEnabled(true);
+
     }
 }

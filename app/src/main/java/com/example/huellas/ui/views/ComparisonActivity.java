@@ -1,5 +1,7 @@
 package com.example.huellas.ui.views;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,17 +10,37 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.huellas.R;
+import com.example.huellas.data.API;
+import com.example.huellas.data.RetrofitClient;
 import com.example.huellas.utils.ImageUtils;
+import com.example.huellas.utils.PreferenceUtil;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.UUID;
 
 import asia.kanopi.fingerscan.Fingerprint;
 import asia.kanopi.fingerscan.Status;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ComparisonActivity extends AppCompatActivity {
 
@@ -33,6 +55,10 @@ public class ComparisonActivity extends AppCompatActivity {
     private Bitmap  firstImageBitmap = null;
     private Bitmap secondImageBitmap = null;
     private boolean isFirstFingerPrint = true;
+    AlphaAnimation inAnimation;
+    AlphaAnimation outAnimation;
+    FrameLayout progressBarHolder;
+
 
     private Handler scanHandler;
     private Handler responseHandler;
@@ -52,6 +78,8 @@ public class ComparisonActivity extends AppCompatActivity {
         scanSecondFingerprintButton = findViewById(R.id.buttonScanSecondFingerprint);
         analyzeFingerPrintsButton = findViewById(R.id.buttonCompareFingerprints);
         defaultAnalyzeButton = findViewById(R.id.buttonDefaultFingerprints);
+
+        progressBarHolder =  findViewById(R.id.progressBarComparison);
 
         scanFirstFingerprintButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,6 +122,9 @@ public class ComparisonActivity extends AppCompatActivity {
         Bitmap secondDefaultBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.finger2);
         firstFingerprintImage.setImageBitmap(firstDefaultBitmap);
         secondFingerprintImage.setImageBitmap(secondDefaultBitmap);
+        firstImageBitmap = null;
+        secondImageBitmap = null;
+        sendComparisonToServer(firstDefaultBitmap, secondDefaultBitmap);
     }
 
     private void scanFirstFingerPrint(){
@@ -107,7 +138,99 @@ public class ComparisonActivity extends AppCompatActivity {
     }
 
     private void analyzeScannedFingerprints(){
-        // TODO: Implement Retrofit
+        sendComparisonToServer(firstImageBitmap, secondImageBitmap);
+    }
+
+    private void sendComparisonToServer(Bitmap firstFingerPrint, Bitmap secondFingerPrint){
+        try {
+            File dir = this.getCacheDir();
+            ImageUtils.deleteDir(dir);
+        } catch (Exception e) { e.printStackTrace();}
+
+        showProgressbar();
+        UUID randomId1 = UUID.randomUUID();
+        UUID randomId2 = UUID.randomUUID();
+        MultipartBody.Part firstMultiPart = ImageUtils.bitmapToMultipart(randomId1.toString(),firstFingerPrint, "fingerprintA" ,this);
+        MultipartBody.Part secondMultiPart = ImageUtils.bitmapToMultipart(randomId2.toString(),secondFingerPrint, "fingerprintB",this);
+        String token = PreferenceUtil.getUser(this);
+        API service = RetrofitClient.getRetrofit().create(API.class);
+
+        if(firstMultiPart == null || secondMultiPart == null){
+            showAlert("There was an error transforming the fingerprint files" );
+        }
+
+        RequestBody type1 =
+                RequestBody.create(
+                        okhttp3.MultipartBody.FORM, "impression");
+        RequestBody type2 =
+                RequestBody.create(
+                        okhttp3.MultipartBody.FORM, "impression");
+        RequestBody region =
+                RequestBody.create(
+                        okhttp3.MultipartBody.FORM, "finger");
+
+        RequestBody rotation =
+                RequestBody.create(
+                        okhttp3.MultipartBody.FORM, "off");
+
+        Call<ResponseBody> call = service.match_1v1("Bearer " + token,type1,type2,region ,rotation ,firstMultiPart, secondMultiPart);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                hideProgressbar();
+                String s = null;
+                int responseCode = response.code();
+
+                try {
+                    if(responseCode != 200 && response.errorBody() != null){
+                        showAlert(response.errorBody().string());
+                        return;
+                    }
+
+                    if(responseCode != 200){
+                        showAlert("There was an error from the server try later");
+                        return;
+                    }
+
+                    if(response.body() == null){
+                        showAlert("There was an error getting Minutae for the fingerprint");
+                        return;
+                    }
+
+                    s = response.body().string();
+                }catch (IOException e){
+                    e.printStackTrace();
+                    showAlert("There was an error parsing the response body");
+                }
+
+                try {
+                    JSONArray minutaRawArray = new JSONArray(s);
+                    String information = minutaRawArray.toString();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(s);
+                        String message = jsonObject.getString("message");
+                        showAlert(message);
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                    }
+
+                }
+            }
+
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                hideProgressbar();
+                System.out.println("Getting cause:" + t.getCause());
+                System.out.println("Fallo la conexion con el servidor " + t.getMessage());
+                System.out.println("Something failed" + Arrays.toString(t.getStackTrace()));
+                showAlert(t.getMessage());
+                call.cancel();
+            }
+        });
     }
 
 
@@ -188,6 +311,8 @@ public class ComparisonActivity extends AppCompatActivity {
 
                     if(firstImageBitmap != null && secondImageBitmap != null){
                         analyzeFingerPrintsButton.setVisibility(View.VISIBLE);
+                    }else{
+                        analyzeFingerPrintsButton.setVisibility(View.INVISIBLE);
                     }
 
                 } else {
@@ -198,6 +323,42 @@ public class ComparisonActivity extends AppCompatActivity {
         };
     }
 
+    public void showAlert(String message){
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+        builder1.setMessage(message);
+        builder1.setCancelable(true);
+        builder1.setPositiveButton(
+                "Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
 
+                    }
+                });
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
+    }
+
+    private void showProgressbar(){
+        inAnimation = new AlphaAnimation(0f, 1f);
+        inAnimation.setDuration(200);
+        progressBarHolder.setAnimation(inAnimation);
+        progressBarHolder.setVisibility(View.VISIBLE);
+        scanFirstFingerprintButton.setEnabled(false);
+        scanSecondFingerprintButton.setEnabled(false);
+        analyzeFingerPrintsButton.setEnabled(false);
+        defaultAnalyzeButton.setEnabled(false);
+    }
+
+    private void hideProgressbar(){
+        outAnimation = new AlphaAnimation(1f, 0f);
+        outAnimation.setDuration(200);
+        progressBarHolder.setAnimation(outAnimation);
+        progressBarHolder.setVisibility(View.GONE);
+        scanFirstFingerprintButton.setEnabled(true);
+        scanSecondFingerprintButton.setEnabled(true);
+        analyzeFingerPrintsButton.setEnabled(true);
+        defaultAnalyzeButton.setEnabled(true);
+
+    }
 
 }

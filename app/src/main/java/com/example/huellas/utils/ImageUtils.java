@@ -98,24 +98,6 @@ public class ImageUtils {
         return multiPartImage;
     }
 
-    public static Bitmap toGrayscale(Bitmap bmpOriginal) {
-
-        Bitmap dest = Bitmap.createBitmap(
-                bmpOriginal.getWidth(),
-                bmpOriginal.getHeight(),
-                Bitmap.Config.ARGB_8888);
-
-        Canvas canvas = new Canvas(dest);
-        Paint paint = new Paint();
-        ColorMatrix cm = new ColorMatrix();
-        cm.setSaturation(0);
-        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(cm);
-        paint.setColorFilter(filter);
-        canvas.drawBitmap(bmpOriginal, 0, 0, paint);
-
-        return dest;
-    }
-
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
             String[] children = dir.list();
@@ -143,8 +125,8 @@ public class ImageUtils {
             int redValue = Color.red(pixel);
             int blueValue = Color.blue(pixel);
             int greenValue = Color.green(pixel);
-            int grayscale = (int)(0.2126 * redValue + 0.7152 * greenValue + 0.0722 * blueValue);
-            int newPixel =  Color.argb(grayscale,redValue,greenValue,blueValue);
+            int greyscale = 255 - (int)(0.2126 * redValue + 0.7152 * greenValue + 0.0722 * blueValue);
+            int newPixel =  Color.argb(greyscale,redValue,greenValue,blueValue);
             newColors[x] = newPixel;
         }
 

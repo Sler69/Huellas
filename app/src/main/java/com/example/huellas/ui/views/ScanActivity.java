@@ -113,7 +113,7 @@ public class ScanActivity extends AppCompatActivity {
         ImageUtils.deleteDir(getCacheDir());
         UUID randomId = UUID.randomUUID();
         scannerBitmap = ImageUtils.to1ByteBitmapOneCycle(scannerBitmap).extractAlpha();
-        MultipartBody.Part scannerImageMultipart = ImageUtils.bitmapToMultipart(randomId.toString(),scannerBitmap,"fingerprint",this,true);
+        MultipartBody.Part scannerImageMultipart = ImageUtils.bitmapToMultipart(randomId.toString(),scannerBitmap,"fingerprint",this,true );
         if(scannerImageMultipart == null){
             showAlert("There was an error parsing the image, Try Again");
             return;

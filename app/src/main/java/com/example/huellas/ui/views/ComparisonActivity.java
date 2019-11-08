@@ -161,7 +161,7 @@ public class ComparisonActivity extends AppCompatActivity {
         MultipartBody.Part imageFirstScan = ImageUtils.bitmapToMultipart(randomId1.toString(),firstImageBitmap,"fingerprintA",this,false);
         MultipartBody.Part imageSecondScan = ImageUtils.bitmapToMultipart(randomId2.toString(),secondImageBitmap,"fingerprintB",this,false);
 
-        if(imageFirstScan == null && imageSecondScan == null){
+        if(imageFirstScan == null || imageSecondScan == null){
             showAlert("There was an error parsing the scanned fingerprint to request format.");
             return;
         }
@@ -333,11 +333,9 @@ public class ComparisonActivity extends AppCompatActivity {
                 if (status == Status.SUCCESS && scannedImageBytes != null) {
                     if(isFirstFingerPrint){
                         firstImageBitmap = BitmapFactory.decodeByteArray(scannedImageBytes, 0, scannedImageBytes.length);
-                        firstImageBitmap = ImageUtils.toGrayscale(firstImageBitmap);
                         firstFingerprintImage.setImageBitmap(firstImageBitmap);
                     }else{
                         secondImageBitmap = BitmapFactory.decodeByteArray(scannedImageBytes, 0, scannedImageBytes.length);
-                        secondImageBitmap = ImageUtils.toGrayscale(firstImageBitmap);
                         secondFingerprintImage.setImageBitmap(secondImageBitmap);
                     }
 

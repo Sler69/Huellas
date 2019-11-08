@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         if(email.equals("arturov@gmail.com")){
             Intent intent = new Intent(MainActivity.this, PrincipalActivity.class);
             startActivity(intent);
+            return;
         }
 
         loginService();

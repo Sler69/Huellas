@@ -30,7 +30,7 @@ public interface API {
             @Part MultipartBody.Part  fingerprint);
 
     @Multipart
-    @POST("match_1v1")
+    @POST("minutiae/match_1v1")
     Call<ResponseBody> match_1v1(
             @Header("Authorization") String token ,
             @Part("type1") RequestBody type1,

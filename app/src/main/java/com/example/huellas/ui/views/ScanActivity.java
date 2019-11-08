@@ -3,6 +3,7 @@ package com.example.huellas.ui.views;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
@@ -54,7 +55,6 @@ public class ScanActivity extends AppCompatActivity {
     private Button analyzeDefaultFingerprint;
     private Button extractMinutae;
     private Bitmap scannerBitmap;
-    private Boolean shiftImage = false;
     AlphaAnimation inAnimation;
     AlphaAnimation outAnimation;
     FrameLayout progressBarHolder;
@@ -65,8 +65,8 @@ public class ScanActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         setContentView(R.layout.activity_scan);
 
-        tvStatus = (TextView) findViewById(R.id.tvStatus);
-        tvError = (TextView) findViewById(R.id.tvError);
+        tvStatus =  findViewById(R.id.tvStatus);
+        tvError = findViewById(R.id.tvError);
         imageView = findViewById(R.id.imageView);
         scanNewFingerprint = findViewById(R.id.saveButton);
 
@@ -110,16 +110,29 @@ public class ScanActivity extends AppCompatActivity {
     }
 
     public void extractMinutiaeScanner(){
-        extractMinutiaeService(scannerBitmap);
+        ImageUtils.deleteDir(getCacheDir());
+        UUID randomId = UUID.randomUUID();
+        scannerBitmap = ImageUtils.to1ByteBitmapOneCycle(scannerBitmap).extractAlpha();
+        MultipartBody.Part scannerImageMultipart = ImageUtils.bitmapToMultipart(randomId.toString(),scannerBitmap,"fingerprint",this);
+        if(scannerImageMultipart == null){
+            showAlert("There was an error parsing the image, Try Again");
+            return;
+        }
+        extractMinutiaeService(scannerImageMultipart);
     }
 
     public void analyzeDefault(){
+        ImageUtils.deleteDir(getCacheDir());
         extractMinutae.setVisibility(View.INVISIBLE);
         Bitmap defaultImageBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.finger2);
-        Bitmap grayscale = ImageUtils.toGrayscale(defaultImageBitmap);
-
-        imageView.setImageBitmap(grayscale);
-        extractMinutiaeService(grayscale);
+        imageView.setImageBitmap(defaultImageBitmap);
+        UUID randomId = UUID.randomUUID();
+        MultipartBody.Part imageToSend = ImageUtils.defaultImage("fingerprint",this,getAssets(),randomId.toString(),"finger1.jpg");
+        if(imageToSend == null){
+            showAlert("There was an error on converting default image to request format.");
+            return;
+        }
+        extractMinutiaeService(imageToSend);
     }
 
     public void showAlert(String message){
@@ -199,19 +212,28 @@ public class ScanActivity extends AppCompatActivity {
         }
     };
 
-    Handler printHandler = new Handler(Looper.getMainLooper()) {
+    final Handler printHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
             byte[] image;
-            String errorMessage = "empty";
+            String errorMessage;
             int status = msg.getData().getInt("status");
             Intent intent = new Intent();
             intent.putExtra("status",
                     status);
             if (status == Status.SUCCESS) {
                 image = msg.getData().getByteArray("img");
-                scannerBitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
-                scannerBitmap = ImageUtils.toGrayscale(scannerBitmap);
+                Bitmap informationFromScan = BitmapFactory.decodeByteArray(image, 0, image.length);
+                int width = informationFromScan.getWidth();
+                int height = informationFromScan.getHeight();
+                int byteCount = informationFromScan.getByteCount();
+                String informationOfCode = "Bytes for the image: "
+                        + byteCount + "\n"
+                        + " Width: " + width + "\n"
+                        + " Height: " + height + "\n"
+                        + " Byte per Pixel" + byteCount / (width * height);
+                tvError.setText(informationOfCode);
+                scannerBitmap = informationFromScan;
                 imageView.setImageBitmap(scannerBitmap);
                 extractMinutae.setVisibility(View.VISIBLE);
                 intent.putExtra("img", image);
@@ -222,9 +244,7 @@ public class ScanActivity extends AppCompatActivity {
         }
     };
 
-    private void extractMinutiaeService(Bitmap imageBitmap){
-        UUID randomId = UUID.randomUUID();
-        MultipartBody.Part imageMultiPart = ImageUtils.bitmapToMultipart(randomId.toString(),imageBitmap,"fingerprint", this);
+    private void extractMinutiaeService(MultipartBody.Part imageToAnalyze){
         String token = PreferenceUtil.getUser(this);
         API service = RetrofitClient.getRetrofit().create(API.class);
 
@@ -235,7 +255,7 @@ public class ScanActivity extends AppCompatActivity {
                 RequestBody.create(
                         okhttp3.MultipartBody.FORM, "finger");
 
-        Call<ResponseBody> call = service.extract_minutiae("Bearer " + token,type1,type2, imageMultiPart);
+        Call<ResponseBody> call = service.extract_minutiae("Bearer " + token,type1,type2, imageToAnalyze);
         showProgressbar();
         call.enqueue(new Callback<ResponseBody>() {
             @Override

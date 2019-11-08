@@ -46,6 +46,7 @@ public class ComparisonActivity extends AppCompatActivity {
 
     private TextView firstScanLabel;
     private TextView secondScanLabel;
+    private TextView resultLabel;
     private Button scanFirstFingerprintButton;
     private Button scanSecondFingerprintButton;
     private Button analyzeFingerPrintsButton;
@@ -73,6 +74,7 @@ public class ComparisonActivity extends AppCompatActivity {
 
         firstScanLabel = findViewById(R.id.firstLabelError);
         secondScanLabel = findViewById(R.id.secondLabelError);
+        resultLabel = findViewById(R.id.resultText);
 
         scanFirstFingerprintButton = findViewById(R.id.buttonScanFirstFingerprint);
         scanSecondFingerprintButton = findViewById(R.id.buttonScanSecondFingerprint);
@@ -118,13 +120,22 @@ public class ComparisonActivity extends AppCompatActivity {
     }
 
     private void analyzeDefaultImages(){
+        ImageUtils.deleteDir(getCacheDir());
         Bitmap firstDefaultBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.finger1);
         Bitmap secondDefaultBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.finger2);
         firstFingerprintImage.setImageBitmap(firstDefaultBitmap);
         secondFingerprintImage.setImageBitmap(secondDefaultBitmap);
+        UUID finger1Id = UUID.randomUUID();
+        UUID finger2Id = UUID.randomUUID();
+        MultipartBody.Part firstDefaultImage = ImageUtils.defaultImage("fingerprintA",this,getAssets(),finger1Id.toString(),"finger1.jpg");
+        MultipartBody.Part secondDefaultImage = ImageUtils.defaultImage("fingerprintB",this,getAssets(),finger2Id.toString(),"finger2.jpg");
         firstImageBitmap = null;
         secondImageBitmap = null;
-        sendComparisonToServer(firstDefaultBitmap, secondDefaultBitmap);
+        if(firstDefaultImage == null || secondDefaultImage == null ){
+            showAlert("There was an error on parsing the default images to request format.");
+            return;
+        }
+        sendComparisonToServer(firstDefaultImage, secondDefaultImage);
     }
 
     private void scanFirstFingerPrint(){
@@ -138,24 +149,38 @@ public class ComparisonActivity extends AppCompatActivity {
     }
 
     private void analyzeScannedFingerprints(){
-        sendComparisonToServer(firstImageBitmap, secondImageBitmap);
+        ImageUtils.deleteDir(getCacheDir());
+        if(firstImageBitmap == null|| secondImageBitmap == null){
+            showAlert("We need two Fingerprints to start the process.");
+            return;
+        }
+        firstImageBitmap = ImageUtils.to1ByteBitmapOneCycle(firstImageBitmap).extractAlpha();
+        secondImageBitmap = ImageUtils.to1ByteBitmapOneCycle(secondImageBitmap).extractAlpha();
+        UUID randomId1 = UUID.randomUUID();
+        UUID randomId2 = UUID.randomUUID();
+        MultipartBody.Part imageFirstScan = ImageUtils.bitmapToMultipart(randomId1.toString(),firstImageBitmap,"fingerprintA",this);
+        MultipartBody.Part imageSecondScan = ImageUtils.bitmapToMultipart(randomId2.toString(),secondImageBitmap,"fingerprintB",this);
+
+        if(imageFirstScan == null && imageSecondScan == null){
+            showAlert("There was an error parsing the scanned fingerprint to request format.");
+            return;
+        }
+
+        sendComparisonToServer(imageFirstScan, imageSecondScan);
     }
 
-    private void sendComparisonToServer(Bitmap firstFingerPrint, Bitmap secondFingerPrint){
+    private void sendComparisonToServer(MultipartBody.Part firstFingerPrint, MultipartBody.Part secondFingerPrint){
         try {
             File dir = this.getCacheDir();
             ImageUtils.deleteDir(dir);
         } catch (Exception e) { e.printStackTrace();}
 
         showProgressbar();
-        UUID randomId1 = UUID.randomUUID();
-        UUID randomId2 = UUID.randomUUID();
-        MultipartBody.Part firstMultiPart = ImageUtils.bitmapToMultipart(randomId1.toString(),firstFingerPrint, "fingerprintA" ,this);
-        MultipartBody.Part secondMultiPart = ImageUtils.bitmapToMultipart(randomId2.toString(),secondFingerPrint, "fingerprintB",this);
+
         String token = PreferenceUtil.getUser(this);
         API service = RetrofitClient.getRetrofit().create(API.class);
 
-        if(firstMultiPart == null || secondMultiPart == null){
+        if(firstFingerPrint == null || secondFingerPrint == null){
             showAlert("There was an error transforming the fingerprint files" );
         }
 
@@ -173,7 +198,7 @@ public class ComparisonActivity extends AppCompatActivity {
                 RequestBody.create(
                         okhttp3.MultipartBody.FORM, "off");
 
-        Call<ResponseBody> call = service.match_1v1("Bearer " + token,type1,type2,region ,rotation ,firstMultiPart, secondMultiPart);
+        Call<ResponseBody> call = service.match_1v1("Bearer " + token,type1,type2,region ,rotation , firstFingerPrint, secondFingerPrint);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -204,8 +229,15 @@ public class ComparisonActivity extends AppCompatActivity {
                 }
 
                 try {
-                    JSONArray minutaRawArray = new JSONArray(s);
-                    String information = minutaRawArray.toString();
+                    JSONObject minutaRawObject = new JSONObject(s);
+                    JSONArray minutaARawArray = minutaRawObject.getJSONArray("minutiaeA");
+                    JSONArray minutaBRawArray = minutaRawObject.getJSONArray("minutiaeB");
+                    JSONArray minutaMatching = minutaRawObject.getJSONArray("matchingPairs");
+                    String information = "Minutae A: " + minutaARawArray.toString() + "\n"
+                                        + "Minutae B: " + minutaBRawArray.toString() + "\n"
+                                        + "Matching Minutae : " + minutaMatching.toString() + "\n";
+                    resultLabel.setText(information);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                     JSONObject jsonObject = null;

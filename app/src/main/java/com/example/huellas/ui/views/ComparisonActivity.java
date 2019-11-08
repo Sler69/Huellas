@@ -127,8 +127,8 @@ public class ComparisonActivity extends AppCompatActivity {
         secondFingerprintImage.setImageBitmap(secondDefaultBitmap);
         UUID finger1Id = UUID.randomUUID();
         UUID finger2Id = UUID.randomUUID();
-        MultipartBody.Part firstDefaultImage = ImageUtils.defaultImage("fingerprintA",this,getAssets(),finger1Id.toString(),"finger1.jpg");
-        MultipartBody.Part secondDefaultImage = ImageUtils.defaultImage("fingerprintB",this,getAssets(),finger2Id.toString(),"finger2.jpg");
+        MultipartBody.Part firstDefaultImage = ImageUtils.defaultImage("fingerprintA",this,getAssets(),finger1Id.toString(),"finger1.jpg",false);
+        MultipartBody.Part secondDefaultImage = ImageUtils.defaultImage("fingerprintB",this,getAssets(),finger2Id.toString(),"finger2.jpg",false);
         firstImageBitmap = null;
         secondImageBitmap = null;
         if(firstDefaultImage == null || secondDefaultImage == null ){
@@ -158,8 +158,8 @@ public class ComparisonActivity extends AppCompatActivity {
         secondImageBitmap = ImageUtils.to1ByteBitmapOneCycle(secondImageBitmap).extractAlpha();
         UUID randomId1 = UUID.randomUUID();
         UUID randomId2 = UUID.randomUUID();
-        MultipartBody.Part imageFirstScan = ImageUtils.bitmapToMultipart(randomId1.toString(),firstImageBitmap,"fingerprintA",this);
-        MultipartBody.Part imageSecondScan = ImageUtils.bitmapToMultipart(randomId2.toString(),secondImageBitmap,"fingerprintB",this);
+        MultipartBody.Part imageFirstScan = ImageUtils.bitmapToMultipart(randomId1.toString(),firstImageBitmap,"fingerprintA",this,false);
+        MultipartBody.Part imageSecondScan = ImageUtils.bitmapToMultipart(randomId2.toString(),secondImageBitmap,"fingerprintB",this,false);
 
         if(imageFirstScan == null && imageSecondScan == null){
             showAlert("There was an error parsing the scanned fingerprint to request format.");

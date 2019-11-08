@@ -22,7 +22,7 @@ import okhttp3.RequestBody;
 
 public class ImageUtils {
 
-    public static MultipartBody.Part bitmapToMultipart(String filename, Bitmap rawImage, String formDataName , Context context){
+    public static MultipartBody.Part bitmapToMultipart(String filename, Bitmap rawImage, String formDataName , Context context, boolean useCache){
         File imageToUpload;
         MultipartBody.Part multiPartImage = null;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -30,7 +30,11 @@ public class ImageUtils {
         byte[] bitmapdata = bos.toByteArray();
 
         try{
-            imageToUpload = File.createTempFile(filename, ".jpg", context.getCacheDir());
+            if(useCache){
+                imageToUpload = File.createTempFile(filename, ".jpg", context.getCacheDir());
+            }else{
+                imageToUpload = new File(context.getFilesDir(),filename + ".jpg");
+            }
 
             FileOutputStream fos = new FileOutputStream(imageToUpload);
             fos.write(bitmapdata);
@@ -46,16 +50,26 @@ public class ImageUtils {
 
         multiPartImage = MultipartBody.Part.createFormData(formDataName, imageToUpload.getName(), requestFile);
 
+        if(!useCache){
+            boolean deletedImage = imageToUpload.delete();
+            System.out.println("Deleted file from internal storage:" + deletedImage );
+        }
+
+
         return multiPartImage;
     }
 
-    public static MultipartBody.Part defaultImage( String formDataName,Context context,AssetManager assetManager, String fileName, String fileAssetName  ){
+    public static MultipartBody.Part defaultImage( String formDataName,Context context,AssetManager assetManager, String fileName, String fileAssetName, boolean useCache  ){
 
         File imageToUpload;
         MultipartBody.Part multiPartImage = null;
 
         try{
-            imageToUpload = File.createTempFile(fileName, ".jpg", context.getCacheDir());
+            if(useCache){
+                imageToUpload = File.createTempFile(fileName, ".jpg", context.getCacheDir());
+            }else{
+                imageToUpload = new File(context.getFilesDir(),fileName + ".jpg");
+            }
             InputStream is = assetManager.open(fileAssetName);
             FileOutputStream fos = new FileOutputStream(imageToUpload);
             int read = 0;
@@ -75,6 +89,11 @@ public class ImageUtils {
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageToUpload);
 
         multiPartImage = MultipartBody.Part.createFormData(formDataName, imageToUpload.getName(), requestFile);
+
+        if(!useCache){
+            boolean deletedImage = imageToUpload.delete();
+            System.out.println("Deleted file from internal storage:" + deletedImage);
+        }
 
         return multiPartImage;
     }

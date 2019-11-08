@@ -113,7 +113,7 @@ public class ScanActivity extends AppCompatActivity {
         ImageUtils.deleteDir(getCacheDir());
         UUID randomId = UUID.randomUUID();
         scannerBitmap = ImageUtils.to1ByteBitmapOneCycle(scannerBitmap).extractAlpha();
-        MultipartBody.Part scannerImageMultipart = ImageUtils.bitmapToMultipart(randomId.toString(),scannerBitmap,"fingerprint",this);
+        MultipartBody.Part scannerImageMultipart = ImageUtils.bitmapToMultipart(randomId.toString(),scannerBitmap,"fingerprint",this,true);
         if(scannerImageMultipart == null){
             showAlert("There was an error parsing the image, Try Again");
             return;
@@ -127,7 +127,7 @@ public class ScanActivity extends AppCompatActivity {
         Bitmap defaultImageBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.finger2);
         imageView.setImageBitmap(defaultImageBitmap);
         UUID randomId = UUID.randomUUID();
-        MultipartBody.Part imageToSend = ImageUtils.defaultImage("fingerprint",this,getAssets(),randomId.toString(),"finger1.jpg");
+        MultipartBody.Part imageToSend = ImageUtils.defaultImage("fingerprint",this,getAssets(),randomId.toString(),"finger1.jpg", true);
         if(imageToSend == null){
             showAlert("There was an error on converting default image to request format.");
             return;
@@ -232,7 +232,7 @@ public class ScanActivity extends AppCompatActivity {
                         + " Width: " + width + "\n"
                         + " Height: " + height + "\n"
                         + " Byte per Pixel" + byteCount / (width * height);
-                tvError.setText(informationOfCode);
+                tvStatus.setText(informationOfCode);
                 scannerBitmap = informationFromScan;
                 imageView.setImageBitmap(scannerBitmap);
                 extractMinutae.setVisibility(View.VISIBLE);

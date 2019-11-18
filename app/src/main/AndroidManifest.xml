@@ -32,5 +32,7 @@
         <activity android:name=".ui.views.SignUpActivity"></activity>
         <activity android:name=".ui.views.ComparisonActivity"></activity>
     </application>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
 
 </manifest>

@@ -120,21 +120,27 @@ public class ComparisonActivity extends AppCompatActivity {
     }
 
     private void analyzeDefaultImages(){
-        ImageUtils.deleteDir(getCacheDir());
         Bitmap firstDefaultBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.finger1);
         Bitmap secondDefaultBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.finger2);
         firstFingerprintImage.setImageBitmap(firstDefaultBitmap);
         secondFingerprintImage.setImageBitmap(secondDefaultBitmap);
-        UUID finger1Id = UUID.randomUUID();
-        UUID finger2Id = UUID.randomUUID();
-        MultipartBody.Part firstDefaultImage = ImageUtils.defaultImage("fingerprintA",this,getAssets(),finger1Id.toString(),"finger1.jpg",false);
-        MultipartBody.Part secondDefaultImage = ImageUtils.defaultImage("fingerprintB",this,getAssets(),finger2Id.toString(),"finger2.jpg",false);
         firstImageBitmap = null;
         secondImageBitmap = null;
-        if(firstDefaultImage == null || secondDefaultImage == null ){
+        UUID finger1Id = UUID.randomUUID();
+        UUID finger2Id = UUID.randomUUID();
+
+        MultipartBody.Part firstDefaultImage = ImageUtils.defaultImage("fingerprintA",this,getAssets(),finger1Id.toString(),"finger1.jpg",true);
+        if(firstDefaultImage == null){
+            showAlert("There was an error on parsing the first image.");
+            return;
+        }
+
+        MultipartBody.Part secondDefaultImage = ImageUtils.defaultImage("fingerprintB",this,getAssets(),finger2Id.toString(),"finger2.jpg",true);
+        if(secondDefaultImage == null ){
             showAlert("There was an error on parsing the default images to request format.");
             return;
         }
+
         sendComparisonToServer(firstDefaultImage, secondDefaultImage);
     }
 
@@ -149,21 +155,36 @@ public class ComparisonActivity extends AppCompatActivity {
     }
 
     private void analyzeScannedFingerprints(){
-        ImageUtils.deleteDir(getCacheDir());
+
         if(firstImageBitmap == null|| secondImageBitmap == null){
             showAlert("We need two Fingerprints to start the process.");
             return;
         }
-        firstImageBitmap = ImageUtils.to1ByteBitmapOneCycle(firstImageBitmap).extractAlpha();
-        secondImageBitmap = ImageUtils.to1ByteBitmapOneCycle(secondImageBitmap).extractAlpha();
-        UUID randomId1 = UUID.randomUUID();
-        UUID randomId2 = UUID.randomUUID();
-        MultipartBody.Part imageFirstScan = ImageUtils.bitmapToMultipart(randomId1.toString(),firstImageBitmap,"fingerprintA",this,false);
-        MultipartBody.Part imageSecondScan = ImageUtils.bitmapToMultipart(randomId2.toString(),secondImageBitmap,"fingerprintB",this,false);
+        firstImageBitmap = ImageUtils.to1ByteBitmapOneCycle(firstImageBitmap);
+        secondImageBitmap = ImageUtils.to1ByteBitmapOneCycle(secondImageBitmap);
 
-        if(imageFirstScan == null || imageSecondScan == null){
-            showAlert("There was an error parsing the scanned fingerprint to request format.");
+        UUID randomId1 = UUID.randomUUID();
+        String imageId1 = randomId1.toString();
+        MultipartBody.Part imageFirstScan = ImageUtils.bitmapToMultipart(imageId1,firstImageBitmap,"fingerprintA",this,true);
+        if(imageFirstScan == null){
+            showAlert("There was an error on parsing the first image.");
             return;
+        }
+        boolean didSaveFirstImage =ImageUtils.saveBitmap(imageId1,firstImageBitmap,this);
+        if(!didSaveFirstImage){
+            System.out.println("Couldn't save the first sacan");
+        }
+
+        UUID randomId2 = UUID.randomUUID();
+        String imageId2 = randomId2.toString();
+        MultipartBody.Part imageSecondScan = ImageUtils.bitmapToMultipart(imageId2,secondImageBitmap,"fingerprintB",this,true);
+        if(imageSecondScan == null){
+            showAlert("There was an error on parsing the second image.");
+            return;
+        }
+        boolean didSaveSecondImage =ImageUtils.saveBitmap(imageId2,firstImageBitmap,this);
+        if(!didSaveSecondImage){
+            System.out.println("Couldn't save the first sacan");
         }
 
         sendComparisonToServer(imageFirstScan, imageSecondScan);

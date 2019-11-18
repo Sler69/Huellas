@@ -110,10 +110,17 @@ public class ScanActivity extends AppCompatActivity {
     }
 
     public void extractMinutiaeScanner(){
-        ImageUtils.deleteDir(getCacheDir());
+
         UUID randomId = UUID.randomUUID();
-        scannerBitmap = ImageUtils.to1ByteBitmapOneCycle(scannerBitmap).extractAlpha();
-        MultipartBody.Part scannerImageMultipart = ImageUtils.bitmapToMultipart(randomId.toString(),scannerBitmap,"fingerprint",this,true );
+        String idImage = randomId.toString();
+        scannerBitmap = ImageUtils.to1ByteBitmapOneCycle(scannerBitmap);
+        boolean savedImage = ImageUtils.saveBitmap(idImage,scannerBitmap,this);
+
+        if(!savedImage){
+            System.out.println("There was an error saving the image.");
+        }
+
+        MultipartBody.Part scannerImageMultipart = ImageUtils.bitmapToMultipart(idImage,scannerBitmap,"fingerprint",this,true );
         if(scannerImageMultipart == null){
             showAlert("There was an error parsing the image, Try Again");
             return;
@@ -122,17 +129,33 @@ public class ScanActivity extends AppCompatActivity {
     }
 
     public void analyzeDefault(){
-        ImageUtils.deleteDir(getCacheDir());
+
         extractMinutae.setVisibility(View.INVISIBLE);
         Bitmap defaultImageBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.finger2);
+        int width = defaultImageBitmap.getWidth();
+        int height = defaultImageBitmap.getHeight();
+        int byteCount = defaultImageBitmap.getByteCount();
+        String informationOfCode = "Bytes for the image: "
+                + byteCount + "\n"
+                + " Width: " + width + "\n"
+                + " Height: " + height + "\n"
+                + " Byte per Pixel" + byteCount / (width * height);
+        System.out.println(informationOfCode);
         imageView.setImageBitmap(defaultImageBitmap);
+        defaultImageBitmap = ImageUtils.to1ByteBitmapOneCycle(defaultImageBitmap);
         UUID randomId = UUID.randomUUID();
-        MultipartBody.Part imageToSend = ImageUtils.defaultImage("fingerprint",this,getAssets(),randomId.toString(),"finger1.jpg", true);
+        String imageId = randomId.toString();
+        boolean saveBitmap = ImageUtils.saveBitmap(imageId,defaultImageBitmap,this);
+        if(!saveBitmap){
+            System.out.println("Couldn't save the image properly");
+        }
+        MultipartBody.Part imageToSend = ImageUtils.defaultImage("fingerprint",this,getAssets(),imageId,"finger1.jpg",true);
         if(imageToSend == null){
             showAlert("There was an error on converting default image to request format.");
             return;
         }
         extractMinutiaeService(imageToSend);
+
     }
 
     public void showAlert(String message){

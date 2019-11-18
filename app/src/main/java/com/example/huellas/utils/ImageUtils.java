@@ -3,11 +3,8 @@ package com.example.huellas.utils;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
+import android.os.Environment;
 
 
 import java.io.ByteArrayOutputStream;
@@ -30,6 +27,7 @@ public class ImageUtils {
         byte[] bitmapdata = bos.toByteArray();
 
         try{
+
             if(useCache){
                 imageToUpload = File.createTempFile(filename, ".jpg", context.getCacheDir());
             }else{
@@ -50,16 +48,14 @@ public class ImageUtils {
 
         multiPartImage = MultipartBody.Part.createFormData(formDataName, imageToUpload.getName(), requestFile);
 
-        if(!useCache){
-            boolean deletedImage = imageToUpload.delete();
-            System.out.println("Deleted file from internal storage:" + deletedImage );
+        if(!imageToUpload.delete()){
+            System.out.println("Couldn't delete file");
         }
-
 
         return multiPartImage;
     }
 
-    public static MultipartBody.Part defaultImage( String formDataName,Context context,AssetManager assetManager, String fileName, String fileAssetName, boolean useCache  ){
+    public static MultipartBody.Part defaultImage( String formDataName,Context context,AssetManager assetManager, String fileName, String fileAssetName,boolean useCache ){
 
         File imageToUpload;
         MultipartBody.Part multiPartImage = null;
@@ -70,6 +66,8 @@ public class ImageUtils {
             }else{
                 imageToUpload = new File(context.getFilesDir(),fileName + ".jpg");
             }
+
+
             InputStream is = assetManager.open(fileAssetName);
             FileOutputStream fos = new FileOutputStream(imageToUpload);
             int read = 0;
@@ -85,18 +83,44 @@ public class ImageUtils {
             return null;
         }
 
-
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageToUpload);
 
         multiPartImage = MultipartBody.Part.createFormData(formDataName, imageToUpload.getName(), requestFile);
 
-        if(!useCache){
-            boolean deletedImage = imageToUpload.delete();
-            System.out.println("Deleted file from internal storage:" + deletedImage);
+        if(!imageToUpload.delete()){
+            System.out.println("Couldn't delete file");
         }
 
         return multiPartImage;
     }
+
+    public static boolean saveBitmap(String filename, Bitmap rawImage, Context context){
+        File imageToUpload;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        boolean isCompressed = rawImage.compress(Bitmap.CompressFormat.JPEG, 100 , bos);
+        if(!isCompressed){
+            System.out.println("EVERYTHING WENT ALRIGHT");
+        }
+        byte[] bitmapdata = bos.toByteArray();
+        try{
+            File appDirectory = getPrivateAlbumStorageDir(context);
+
+            imageToUpload = new File(appDirectory.getPath() + File.pathSeparator + filename + ".jpg");
+
+            FileOutputStream fos = new FileOutputStream(imageToUpload);
+            fos.write(bitmapdata);
+            fos.flush();
+            fos.close();
+
+        }catch (IOException e){
+            e.printStackTrace();
+            return false ;
+        }
+
+        return true;
+    }
+
 
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
@@ -125,11 +149,30 @@ public class ImageUtils {
             int redValue = Color.red(pixel);
             int blueValue = Color.blue(pixel);
             int greenValue = Color.green(pixel);
-            int greyscale = 255 - (int)(0.2126 * redValue + 0.7152 * greenValue + 0.0722 * blueValue);
+            int greyscale = (int)(0.2126 * redValue + 0.7152 * greenValue + 0.0722 * blueValue);
             int newPixel =  Color.argb(greyscale,redValue,greenValue,blueValue);
             newColors[x] = newPixel;
+            if(greyscale == 0){
+                System.out.println("There was a bigger value");
+            }
         }
 
         return Bitmap.createBitmap(newColors,width,height,Bitmap.Config.ARGB_8888);
     }
+
+    private static boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
+    }
+
+    private static File getPrivateAlbumStorageDir(Context context) {
+        File file = new File(context.getExternalFilesDir(
+                Environment.DIRECTORY_PICTURES),"HUELLAS");
+        if (!file.mkdirs()) {
+            System.out.println("Couldn't create the directory.");
+        }
+        return file;
+    }
+
+
 }

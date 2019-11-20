@@ -114,17 +114,13 @@ public class ScanActivity extends AppCompatActivity {
         UUID randomId = UUID.randomUUID();
         String idImage = randomId.toString();
         scannerBitmap = ImageUtils.to1ByteBitmapOneCycle(scannerBitmap);
-        boolean savedImage = ImageUtils.saveBitmap(idImage,scannerBitmap,this);
 
-        if(!savedImage){
-            System.out.println("There was an error saving the image.");
-        }
-
-        MultipartBody.Part scannerImageMultipart = ImageUtils.bitmapToMultipart(idImage,scannerBitmap,"fingerprint",this,true );
+        MultipartBody.Part scannerImageMultipart = ImageUtils.bitmapSaveImageAndUpload(idImage,scannerBitmap,"fingerprint",this );
         if(scannerImageMultipart == null){
             showAlert("There was an error parsing the image, Try Again");
             return;
         }
+
         extractMinutiaeService(scannerImageMultipart);
     }
 
@@ -145,15 +141,13 @@ public class ScanActivity extends AppCompatActivity {
         defaultImageBitmap = ImageUtils.to1ByteBitmapOneCycle(defaultImageBitmap);
         UUID randomId = UUID.randomUUID();
         String imageId = randomId.toString();
-        boolean saveBitmap = ImageUtils.saveBitmap(imageId,defaultImageBitmap,this);
-        if(!saveBitmap){
-            System.out.println("Couldn't save the image properly");
-        }
-        MultipartBody.Part imageToSend = ImageUtils.defaultImage("fingerprint",this,getAssets(),imageId,"finger1.jpg",true);
+
+        MultipartBody.Part imageToSend = ImageUtils.defaultImageSave("fingerprint",this,getAssets(),imageId,"finger1.jpg",true);
         if(imageToSend == null){
             showAlert("There was an error on converting default image to request format.");
             return;
         }
+
         extractMinutiaeService(imageToSend);
 
     }

@@ -47,10 +47,6 @@ public class ImageUtils {
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageToUpload);
         multiPartImage = MultipartBody.Part.createFormData(formDataName, imageToUpload.getName(), requestFile);
 
-        if(!imageToUpload.delete()){
-            System.out.println("Couldn't delete file");
-        }
-
         return multiPartImage;
     }
 
@@ -86,10 +82,6 @@ public class ImageUtils {
 
         multiPartImage = MultipartBody.Part.createFormData(formDataName, imageToUpload.getName(), requestFile);
 
-        if(!imageToUpload.delete()){
-            System.out.println("Couldn't delete file");
-        }
-
         return multiPartImage;
     }
 
@@ -118,7 +110,6 @@ public class ImageUtils {
 
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageToUpload);
         multiPartImage = MultipartBody.Part.createFormData(formDataName, imageToUpload.getName(), requestFile);
-        System.out.println();
 
         return multiPartImage;
     }
@@ -151,7 +142,7 @@ public class ImageUtils {
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageToUpload);
 
         multiPartImage = MultipartBody.Part.createFormData(formDataName, imageToUpload.getName(), requestFile);
-        
+
         return multiPartImage;
 
     }

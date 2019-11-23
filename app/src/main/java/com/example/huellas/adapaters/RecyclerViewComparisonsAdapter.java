@@ -5,10 +5,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.huellas.R;
@@ -47,7 +47,7 @@ public class RecyclerViewComparisonsAdapter extends RecyclerView.Adapter<Recycle
         holder.comparisonId.setText(current.getId());
         holder.comparison1.setText(current.getFirstFingerPrint());
         holder.comparison2.setText(current.getSecondFingerPrint());
-        holder.percentage.setText(current.getCoincidencePercentage().toString());
+        holder.percentage.setText(current.getCoincidencePercentage().toString() + "%");
     }
 
     @Override
@@ -62,7 +62,7 @@ public class RecyclerViewComparisonsAdapter extends RecyclerView.Adapter<Recycle
         TextView comparison1;
         TextView comparison2;
         TextView percentage;
-        RelativeLayout parentLayout;
+        CardView parentLayout;
 
         public ViewHolder(View itemView){
             super(itemView);

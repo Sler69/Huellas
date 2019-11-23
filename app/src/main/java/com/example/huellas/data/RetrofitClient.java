@@ -15,8 +15,8 @@ public class RetrofitClient {
     //Create the Retrofit instance
     public static Retrofit getRetrofit(){
         final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .readTimeout(30, TimeUnit.SECONDS)
-                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(60, TimeUnit.SECONDS)
                 .build();
         if(retrofit ==  null){
             retrofit = new Retrofit.Builder()

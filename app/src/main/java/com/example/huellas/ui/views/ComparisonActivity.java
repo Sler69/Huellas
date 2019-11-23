@@ -129,13 +129,15 @@ public class ComparisonActivity extends AppCompatActivity {
         UUID finger1Id = UUID.randomUUID();
         UUID finger2Id = UUID.randomUUID();
 
-        MultipartBody.Part firstDefaultImage = ImageUtils.defaultImageSave("fingerprintA",this,getAssets(),finger1Id.toString(),"finger1.jpg",true);
+        // MultipartBody.Part firstDefaultImage = ImageUtils.bitmapToMultipart(finger1Id.toString(),firstDefaultBitmap,"fingerprintA",this,false);
+
+        MultipartBody.Part firstDefaultImage = ImageUtils.defaultImage("fingerprintA",this,getAssets(),finger1Id.toString(),"finger1.jpg",false);
         if(firstDefaultImage == null){
             showAlert("There was an error on parsing the first image.");
             return;
         }
-
-        MultipartBody.Part secondDefaultImage = ImageUtils.defaultImageSave("fingerprintB",this,getAssets(),finger2Id.toString(),"finger2.jpg",true);
+        // MultipartBody.Part secondDefaultImage = ImageUtils.bitmapToMultipart(finger2Id.toString(),secondDefaultBitmap,"fingerprintB",this,false);
+        MultipartBody.Part secondDefaultImage = ImageUtils.defaultImage("fingerprintB",this,getAssets(),finger2Id.toString(),"finger2.jpg",false);
         if(secondDefaultImage == null ){
             showAlert("There was an error on parsing the default images to request format.");
             return;
@@ -166,7 +168,7 @@ public class ComparisonActivity extends AppCompatActivity {
 
         UUID randomId1 = UUID.randomUUID();
         String imageId1 = randomId1.toString();
-        MultipartBody.Part imageFirstScan = ImageUtils.bitmapSaveImageAndUpload(imageId1,firstImageBitmap,"fingerprintA",this);
+        MultipartBody.Part imageFirstScan = ImageUtils.bitmapToMultipart(imageId1,firstImageBitmap,"fingerprintA",this,false);
 
         if(imageFirstScan == null){
             showAlert("There was an error on parsing the first image.");
@@ -176,7 +178,7 @@ public class ComparisonActivity extends AppCompatActivity {
         UUID randomId2 = UUID.randomUUID();
         String imageId2 = randomId2.toString();
 
-        MultipartBody.Part imageSecondScan = ImageUtils.bitmapSaveImageAndUpload(imageId2,secondImageBitmap,"fingerprintB",this);
+        MultipartBody.Part imageSecondScan = ImageUtils.bitmapToMultipart(imageId2,secondImageBitmap,"fingerprintB",this,false);
         if(imageSecondScan == null){
             showAlert("There was an error on parsing the second image.");
             return;
@@ -186,11 +188,6 @@ public class ComparisonActivity extends AppCompatActivity {
     }
 
     private void sendComparisonToServer(MultipartBody.Part firstFingerPrint, MultipartBody.Part secondFingerPrint){
-        try {
-            File dir = this.getCacheDir();
-            ImageUtils.deleteDir(dir);
-        } catch (Exception e) { e.printStackTrace();}
-
         showProgressbar();
 
         String token = PreferenceUtil.getUser(this);
@@ -243,17 +240,15 @@ public class ComparisonActivity extends AppCompatActivity {
                     e.printStackTrace();
                     showAlert("There was an error parsing the response body");
                 }
-
+                String information = "";
                 try {
                     JSONObject minutaRawObject = new JSONObject(s);
                     JSONArray minutaARawArray = minutaRawObject.getJSONArray("minutiaeA");
                     JSONArray minutaBRawArray = minutaRawObject.getJSONArray("minutiaeB");
                     JSONArray minutaMatching = minutaRawObject.getJSONArray("matchingPairs");
-                    String information = "Minutae A: " + minutaARawArray.toString() + "\n"
-                                        + "Minutae B: " + minutaBRawArray.toString() + "\n"
-                                        + "Matching Minutae : " + minutaMatching.toString() + "\n";
-                    resultLabel.setText(information);
-
+                    information = "Fingerprint A minutias: " + minutaARawArray.toString() + " \n\n"
+                                        + "Fingerprint B minutias: " + minutaBRawArray.toString() + " \n\n"
+                                        + "Fingerprint Match minutias: "  + minutaMatching.toString() + " \n";
                 } catch (JSONException e) {
                     e.printStackTrace();
                     JSONObject jsonObject = null;
@@ -261,11 +256,13 @@ public class ComparisonActivity extends AppCompatActivity {
                         jsonObject = new JSONObject(s);
                         String message = jsonObject.getString("message");
                         showAlert(message);
+                        return;
                     } catch (JSONException ex) {
                         ex.printStackTrace();
                     }
 
                 }
+                resultLabel.setText(information);
             }
 
 

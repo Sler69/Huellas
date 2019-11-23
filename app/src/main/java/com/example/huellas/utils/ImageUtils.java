@@ -44,6 +44,8 @@ public class ImageUtils {
             return null;
         }
 
+        System.out.println("PATH OF FILE: " + imageToUpload.getAbsolutePath());
+
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageToUpload);
         multiPartImage = MultipartBody.Part.createFormData(formDataName, imageToUpload.getName(), requestFile);
 
@@ -78,73 +80,13 @@ public class ImageUtils {
             return null;
         }
 
-        RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageToUpload);
-
-        multiPartImage = MultipartBody.Part.createFormData(formDataName, imageToUpload.getName(), requestFile);
-
-        return multiPartImage;
-    }
-
-    public static MultipartBody.Part bitmapSaveImageAndUpload(String filename, Bitmap rawImage, String formDataName , Context context){
-        File imageToUpload;
-        MultipartBody.Part multiPartImage = null;
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        rawImage.compress(Bitmap.CompressFormat.JPEG, 100 , bos);
-        byte[] bitmapdata = bos.toByteArray();
-
-        try{
-
-            File appDirectory = getPrivateAlbumStorageDir(context);
-
-            imageToUpload = new File(appDirectory.getPath() + File.pathSeparator + filename + ".jpg");
-
-            FileOutputStream fos = new FileOutputStream(imageToUpload);
-            fos.write(bitmapdata);
-            fos.flush();
-            fos.close();
-
-        }catch (IOException e){
-            e.printStackTrace();
-            return null;
-        }
-
-        RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageToUpload);
-        multiPartImage = MultipartBody.Part.createFormData(formDataName, imageToUpload.getName(), requestFile);
-
-        return multiPartImage;
-    }
-
-    public static MultipartBody.Part defaultImageSave( String formDataName,Context context,AssetManager assetManager, String fileName, String fileAssetName,boolean useCache ){
-
-        File imageToUpload;
-        MultipartBody.Part multiPartImage = null;
-
-        try{
-            File appDirectory = getPrivateAlbumStorageDir(context);
-
-            imageToUpload = new File(appDirectory.getPath() + File.pathSeparator + fileName + ".jpg");
-
-            InputStream is = assetManager.open(fileAssetName);
-            FileOutputStream fos = new FileOutputStream(imageToUpload);
-            int read = 0;
-            byte[] bytes = new byte[1024];
-            while ((read = is.read(bytes)) != -1) {
-                fos.write(bytes, 0, read);
-            }
-            fos.flush();
-            fos.close();
-
-        }catch (IOException e){
-            e.printStackTrace();
-            return null;
-        }
+        System.out.println("PATH OF FILE: " + imageToUpload.getAbsolutePath());
 
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageToUpload);
 
         multiPartImage = MultipartBody.Part.createFormData(formDataName, imageToUpload.getName(), requestFile);
 
         return multiPartImage;
-
     }
 
     public static boolean saveBitmap(String filename, Bitmap rawImage, Context context){
@@ -170,20 +112,6 @@ public class ImageUtils {
         }
 
         return true;
-    }
-
-
-    public static boolean deleteDir(File dir) {
-        if (dir != null && dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-        return  true;
     }
 
     public static Bitmap to1ByteBitmapOneCycle(Bitmap originalBitmap){

@@ -49,6 +49,7 @@ import retrofit2.Response;
 public class ScanActivity extends AppCompatActivity {
     private TextView tvStatus;
     private TextView tvError;
+    private TextView resultLabel;
     private Fingerprint fingerprint;
     private ImageView imageView;
     private Button scanNewFingerprint;
@@ -67,6 +68,8 @@ public class ScanActivity extends AppCompatActivity {
 
         tvStatus =  findViewById(R.id.tvStatus);
         tvError = findViewById(R.id.tvError);
+        resultLabel = findViewById(R.id.scanResultText);
+
         imageView = findViewById(R.id.imageView);
         scanNewFingerprint = findViewById(R.id.saveButton);
 
@@ -115,7 +118,7 @@ public class ScanActivity extends AppCompatActivity {
         String idImage = randomId.toString();
         scannerBitmap = ImageUtils.to1ByteBitmapOneCycle(scannerBitmap);
 
-        MultipartBody.Part scannerImageMultipart = ImageUtils.bitmapSaveImageAndUpload(idImage,scannerBitmap,"fingerprint",this );
+        MultipartBody.Part scannerImageMultipart = ImageUtils.bitmapToMultipart(idImage,scannerBitmap,"fingerprint",this,false );
         if(scannerImageMultipart == null){
             showAlert("There was an error parsing the image, Try Again");
             return;
@@ -138,15 +141,16 @@ public class ScanActivity extends AppCompatActivity {
                 + " Byte per Pixel" + byteCount / (width * height);
         System.out.println(informationOfCode);
         imageView.setImageBitmap(defaultImageBitmap);
-        defaultImageBitmap = ImageUtils.to1ByteBitmapOneCycle(defaultImageBitmap);
+       // defaultImageBitmap = ImageUtils.to1ByteBitmapOneCycle(defaultImageBitmap);
         UUID randomId = UUID.randomUUID();
         String imageId = randomId.toString();
-
-        MultipartBody.Part imageToSend = ImageUtils.defaultImageSave("fingerprint",this,getAssets(),imageId,"finger1.jpg",true);
+        //MultipartBody.Part imageToSend = ImageUtils.bitmapToMultipart(imageId,defaultImageBitmap,"fingerprint",this,false);
+        MultipartBody.Part imageToSend = ImageUtils.defaultImage("fingerprint",this,getAssets(),imageId,"finger1.jpg",false);
         if(imageToSend == null){
             showAlert("There was an error on converting default image to request format.");
             return;
         }
+        System.out.println(imageToSend);
 
         extractMinutiaeService(imageToSend);
 
@@ -306,7 +310,7 @@ public class ScanActivity extends AppCompatActivity {
                 try {
                     JSONArray minutaRawArray = new JSONArray(s);
                     String information = minutaRawArray.toString();
-                    tvError.setText(information);
+                    resultLabel.setText(information);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     JSONObject jsonObject = null;

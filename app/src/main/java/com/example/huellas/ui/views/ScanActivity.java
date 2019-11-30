@@ -7,6 +7,9 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -265,7 +268,7 @@ public class ScanActivity extends AppCompatActivity {
         }
     };
 
-    private void extractMinutiaeService(MultipartBody.Part imageToAnalyze){
+    private void extractMinutiaeService(final MultipartBody.Part imageToAnalyze){
         String token = PreferenceUtil.getUser(this);
         API service = RetrofitClient.getRetrofit().create(API.class);
 
@@ -309,8 +312,36 @@ public class ScanActivity extends AppCompatActivity {
 
                 try {
                     JSONArray minutaRawArray = new JSONArray(s);
-                    String information = minutaRawArray.toString();
-                    resultLabel.setText(information);
+                    String information = "";
+
+
+                    Paint paint = new Paint();
+                    paint.setAntiAlias(true);
+                    paint.setColor(Color.GREEN);
+                    paint.setStyle(Paint.Style.STROKE);
+                    paint.setStrokeWidth(2);
+                    Bitmap workingBitmap = Bitmap.createBitmap(scannerBitmap);
+                    Bitmap mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
+
+                    Canvas canvas = new Canvas(mutableBitmap);
+                    for (int i = 0; i<minutaRawArray.length();i++){
+
+                        JSONObject jsonObject = minutaRawArray.getJSONObject(i);
+                        int x = jsonObject.getInt("X");
+                        int y = jsonObject.getInt("Y");
+                        double angle = jsonObject.getDouble("Angle");
+                        float a = Float.parseFloat(String.valueOf(angle));
+
+                        information += a +" " + Float.parseFloat(String.valueOf(Math.cos(a))) + " " + Float.parseFloat(String.valueOf(Math.sin(a))) + "\n";
+
+                        canvas.drawCircle(x, y, 5, paint);
+                        canvas.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paint);
+
+                    }
+
+                    //resultLabel.setText(information);
+                    imageView.setAdjustViewBounds(true);
+                    imageView.setImageBitmap(mutableBitmap);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     JSONObject jsonObject = null;

@@ -5,7 +5,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -43,14 +42,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvError" />
 
-    <Button
-        android:id="@+id/defaultFingerprint"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Analyze Default FingerPrint"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView"/>
+        <Button
+            android:id="@+id/defaultFingerprint"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Analyze Default FingerPrint"
+            app:layout_constraintBottom_toBottomOf="@+id/imageView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:visibility="gone"/>
 
 
     <Button

@@ -12,25 +12,27 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.views.ShowFingerprintActivity"></activity>
+        <activity android:name=".ui.views.ShowFingerprintActivity" android:screenOrientation="portrait"></activity>
         <activity
+            android:screenOrientation="portrait"
             android:name=".ui.views.MainViewActivity"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity android:name=".ui.views.PrincipalActivity"></activity>
-        <activity android:name=".MainActivity">
+        <activity android:name=".ui.views.PrincipalActivity" android:screenOrientation="portrait">
+        </activity>
+        <activity android:name=".MainActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.views.ScanActivity"></activity>
-        <activity android:name=".ui.views.SignUpActivity"></activity>
-        <activity android:name=".ui.views.ComparisonActivity"></activity>
+        <activity android:name=".ui.views.ScanActivity" android:screenOrientation="portrait"></activity>
+        <activity android:name=".ui.views.SignUpActivity" android:screenOrientation="portrait"></activity>
+        <activity android:name=".ui.views.ComparisonActivity" android:screenOrientation="portrait"></activity>
     </application>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="18" />

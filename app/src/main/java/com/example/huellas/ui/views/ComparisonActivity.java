@@ -144,240 +144,21 @@ public class ComparisonActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 activatedButton1 = b;
                 if(b&&activatedButton2){
-                    Paint paint = new Paint();
-                    paint.setAntiAlias(true);
-                    paint.setColor(Color.RED);
-                    paint.setStyle(Paint.Style.STROKE);
-                    paint.setStrokeWidth(2);
-
-                    Bitmap workingBitmap = Bitmap.createBitmap(firstImageBitmap);
-                    Bitmap mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
-                    canvasA = new Canvas(mutableBitmap);
-                    for (int i = 0; i<firstInd.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = firstInd.getJSONObject(i);
-                            int x = jsonObject.getInt("X");
-                            int y = jsonObject.getInt("Y");
-                            double angle = jsonObject.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-                            canvasA.drawCircle(x, y, 5, paint);
-                            canvasA.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paint);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    Paint paintMatch = new Paint();
-                    paintMatch.setAntiAlias(true);
-                    paintMatch.setColor(Color.GREEN);
-                    paintMatch.setStyle(Paint.Style.STROKE);
-                    paintMatch.setStrokeWidth(2);
-
-
-                    for (int i = 0; i<match.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = match.getJSONObject(i);
-                            JSONObject minutia = jsonObject.getJSONObject("QueryMtia");
-                            int x = minutia.getInt("X");
-                            int y = minutia.getInt("Y");
-                            double angle = minutia.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-                            canvasA.drawCircle(x, y, 5, paintMatch);
-                            canvasA.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paintMatch);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    firstFingerprintImage.setAdjustViewBounds(true);
-                    firstFingerprintImage.setImageBitmap(mutableBitmap);
-
-                    Bitmap workingBitmapB = Bitmap.createBitmap(secondImageBitmap);
-                    Bitmap mutableBitmapB = workingBitmapB.copy(Bitmap.Config.ARGB_8888, true);
-
-                    canvasB = new Canvas(mutableBitmapB);
-                    for (int i = 0; i<secondInd.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = secondInd.getJSONObject(i);
-                            int x = jsonObject.getInt("X");
-                            int y = jsonObject.getInt("Y");
-                            double angle = jsonObject.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-
-                            canvasB.drawCircle(x, y, 5, paint);
-                            canvasB.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paint);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    for (int i = 0; i<match.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = match.getJSONObject(i);
-                            JSONObject minutia = jsonObject.getJSONObject("TemplateMtia");
-                            int x = minutia.getInt("X");
-                            int y = minutia.getInt("Y");
-                            double angle = minutia.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-
-                            canvasB.drawCircle(x, y, 5, paintMatch);
-                            canvasB.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paintMatch);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                    secondFingerprintImage.setAdjustViewBounds(true);
-                    secondFingerprintImage.setImageBitmap(mutableBitmapB);
+                    paintBothMinutias();
                     return;
-
                 }
                 if(b){
-
-                    Paint paint = new Paint();
-                    paint.setAntiAlias(true);
-                    paint.setColor(Color.RED);
-                    paint.setStyle(Paint.Style.STROKE);
-                    paint.setStrokeWidth(2);
-
-                    Bitmap workingBitmap = Bitmap.createBitmap(firstImageBitmap);
-                    Bitmap mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
-                    canvasA = new Canvas(mutableBitmap);
-                    for (int i = 0; i<firstInd.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = firstInd.getJSONObject(i);
-                            int x = jsonObject.getInt("X");
-                            int y = jsonObject.getInt("Y");
-                            double angle = jsonObject.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-                            canvasA.drawCircle(x, y, 5, paint);
-                            canvasA.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paint);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    firstFingerprintImage.setAdjustViewBounds(true);
-                    firstFingerprintImage.setImageBitmap(mutableBitmap);
-
-                    Bitmap workingBitmapB = Bitmap.createBitmap(secondImageBitmap);
-                    Bitmap mutableBitmapB = workingBitmapB.copy(Bitmap.Config.ARGB_8888, true);
-
-                    canvasB = new Canvas(mutableBitmapB);
-                    for (int i = 0; i<secondInd.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = secondInd.getJSONObject(i);
-                            int x = jsonObject.getInt("X");
-                            int y = jsonObject.getInt("Y");
-                            double angle = jsonObject.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-
-                            canvasB.drawCircle(x, y, 5, paint);
-                            canvasB.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paint);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    secondFingerprintImage.setAdjustViewBounds(true);
-                    secondFingerprintImage.setImageBitmap(mutableBitmapB);
+                    paintIndividual();
                     return;
 
-                }if(activatedButton2){
-
-                    Paint paintMatch = new Paint();
-                    paintMatch.setAntiAlias(true);
-                    paintMatch.setColor(Color.GREEN);
-                    paintMatch.setStyle(Paint.Style.STROKE);
-                    paintMatch.setStrokeWidth(2);
-
-                    Bitmap workingBitmap = Bitmap.createBitmap(firstImageBitmap);
-                    Bitmap mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
-                    canvasA = new Canvas(mutableBitmap);
-
-                    for (int i = 0; i<match.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = match.getJSONObject(i);
-                            JSONObject minutia = jsonObject.getJSONObject("QueryMtia");
-                            int x = minutia.getInt("X");
-                            int y = minutia.getInt("Y");
-                            double angle = minutia.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-                            canvasA.drawCircle(x, y, 5, paintMatch);
-                            canvasA.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paintMatch);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-
-                    firstFingerprintImage.setAdjustViewBounds(true);
-                    firstFingerprintImage.setImageBitmap(mutableBitmap);
-
-                    Bitmap workingBitmapB = Bitmap.createBitmap(secondImageBitmap);
-                    mutableBitmapB = workingBitmapB.copy(Bitmap.Config.ARGB_8888, true);
-
-                    canvasB = new Canvas(mutableBitmapB);
-
-                    for (int i = 0; i<match.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = match.getJSONObject(i);
-                            JSONObject minutia = jsonObject.getJSONObject("TemplateMtia");
-                            int x = minutia.getInt("X");
-                            int y = minutia.getInt("Y");
-                            double angle = minutia.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-
-                            canvasB.drawCircle(x, y, 5, paintMatch);
-                            canvasB.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paintMatch);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    //resultLabel.setText(information);
-                    secondFingerprintImage.setAdjustViewBounds(true);
-                    secondFingerprintImage.setImageBitmap(mutableBitmapB);
-
-
-
-
                 }
-                else {
-                    firstFingerprintImage.setImageBitmap(firstImageBitmap);
-                    secondFingerprintImage.setImageBitmap(secondImageBitmap);
+                if(activatedButton2){
+                    paintMatching();
+                    return;
                 }
+                firstFingerprintImage.setImageBitmap(firstImageBitmap);
+                secondFingerprintImage.setImageBitmap(secondImageBitmap);
+
             }
         });
 
@@ -386,237 +167,21 @@ public class ComparisonActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 activatedButton2 = b;
                 if(b&&activatedButton1){
-                    Paint paint = new Paint();
-                    paint.setAntiAlias(true);
-                    paint.setColor(Color.RED);
-                    paint.setStyle(Paint.Style.STROKE);
-                    paint.setStrokeWidth(2);
-
-                    Bitmap workingBitmap = Bitmap.createBitmap(firstImageBitmap);
-                    Bitmap mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
-                    canvasA = new Canvas(mutableBitmap);
-                    for (int i = 0; i<firstInd.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = firstInd.getJSONObject(i);
-                            int x = jsonObject.getInt("X");
-                            int y = jsonObject.getInt("Y");
-                            double angle = jsonObject.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-                            canvasA.drawCircle(x, y, 5, paint);
-                            canvasA.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paint);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    Paint paintMatch = new Paint();
-                    paintMatch.setAntiAlias(true);
-                    paintMatch.setColor(Color.GREEN);
-                    paintMatch.setStyle(Paint.Style.STROKE);
-                    paintMatch.setStrokeWidth(2);
-
-
-                    for (int i = 0; i<match.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = match.getJSONObject(i);
-                            JSONObject minutia = jsonObject.getJSONObject("QueryMtia");
-                            int x = minutia.getInt("X");
-                            int y = minutia.getInt("Y");
-                            double angle = minutia.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-                            canvasA.drawCircle(x, y, 5, paintMatch);
-                            canvasA.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paintMatch);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    firstFingerprintImage.setAdjustViewBounds(true);
-                    firstFingerprintImage.setImageBitmap(mutableBitmap);
-
-                    Bitmap workingBitmapB = Bitmap.createBitmap(secondImageBitmap);
-                    Bitmap mutableBitmapB = workingBitmapB.copy(Bitmap.Config.ARGB_8888, true);
-
-                    canvasB = new Canvas(mutableBitmapB);
-                    for (int i = 0; i<secondInd.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = secondInd.getJSONObject(i);
-                            int x = jsonObject.getInt("X");
-                            int y = jsonObject.getInt("Y");
-                            double angle = jsonObject.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-
-                            canvasB.drawCircle(x, y, 5, paint);
-                            canvasB.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paint);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    for (int i = 0; i<match.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = match.getJSONObject(i);
-                            JSONObject minutia = jsonObject.getJSONObject("TemplateMtia");
-                            int x = minutia.getInt("X");
-                            int y = minutia.getInt("Y");
-                            double angle = minutia.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-
-                            canvasB.drawCircle(x, y, 5, paintMatch);
-                            canvasB.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paintMatch);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                    secondFingerprintImage.setAdjustViewBounds(true);
-                    secondFingerprintImage.setImageBitmap(mutableBitmapB);
+                    paintBothMinutias();
                     return;
 
                 }
                 if(b){
-
-                    Paint paintMatch = new Paint();
-                    paintMatch.setAntiAlias(true);
-                    paintMatch.setColor(Color.GREEN);
-                    paintMatch.setStyle(Paint.Style.STROKE);
-                    paintMatch.setStrokeWidth(2);
-
-                    Bitmap workingBitmap = Bitmap.createBitmap(firstImageBitmap);
-                    Bitmap mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
-                    canvasA = new Canvas(mutableBitmap);
-
-                    for (int i = 0; i<match.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = match.getJSONObject(i);
-                            JSONObject minutia = jsonObject.getJSONObject("QueryMtia");
-                            int x = minutia.getInt("X");
-                            int y = minutia.getInt("Y");
-                            double angle = minutia.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-                            canvasA.drawCircle(x, y, 5, paintMatch);
-                            canvasA.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paintMatch);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-
-                    firstFingerprintImage.setAdjustViewBounds(true);
-                    firstFingerprintImage.setImageBitmap(mutableBitmap);
-
-                    Bitmap workingBitmapB = Bitmap.createBitmap(secondImageBitmap);
-                    mutableBitmapB = workingBitmapB.copy(Bitmap.Config.ARGB_8888, true);
-
-                    canvasB = new Canvas(mutableBitmapB);
-
-                    for (int i = 0; i<match.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = match.getJSONObject(i);
-                            JSONObject minutia = jsonObject.getJSONObject("TemplateMtia");
-                            int x = minutia.getInt("X");
-                            int y = minutia.getInt("Y");
-                            double angle = minutia.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-
-                            canvasB.drawCircle(x, y, 5, paintMatch);
-                            canvasB.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paintMatch);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    //resultLabel.setText(information);
-                    secondFingerprintImage.setAdjustViewBounds(true);
-                    secondFingerprintImage.setImageBitmap(mutableBitmapB);
+                    paintMatching();
                     return;
                 }
                 if(activatedButton1){
-                    Paint paint = new Paint();
-                    paint.setAntiAlias(true);
-                    paint.setColor(Color.RED);
-                    paint.setStyle(Paint.Style.STROKE);
-                    paint.setStrokeWidth(2);
-
-                    Bitmap workingBitmap = Bitmap.createBitmap(firstImageBitmap);
-                    Bitmap mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
-                    canvasA = new Canvas(mutableBitmap);
-                    for (int i = 0; i<firstInd.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = firstInd.getJSONObject(i);
-                            int x = jsonObject.getInt("X");
-                            int y = jsonObject.getInt("Y");
-                            double angle = jsonObject.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-                            canvasA.drawCircle(x, y, 5, paint);
-                            canvasA.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paint);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    firstFingerprintImage.setAdjustViewBounds(true);
-                    firstFingerprintImage.setImageBitmap(mutableBitmap);
-
-                    Bitmap workingBitmapB = Bitmap.createBitmap(secondImageBitmap);
-                    Bitmap mutableBitmapB = workingBitmapB.copy(Bitmap.Config.ARGB_8888, true);
-
-                    canvasB = new Canvas(mutableBitmapB);
-                    for (int i = 0; i<secondInd.length();i++){
-
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = secondInd.getJSONObject(i);
-                            int x = jsonObject.getInt("X");
-                            int y = jsonObject.getInt("Y");
-                            double angle = jsonObject.getDouble("Angle");
-                            float a = Float.parseFloat(String.valueOf(angle));
-
-                            canvasB.drawCircle(x, y, 5, paint);
-                            canvasB.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paint);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    secondFingerprintImage.setAdjustViewBounds(true);
-                    secondFingerprintImage.setImageBitmap(mutableBitmapB);
+                    paintIndividual();
+                    return;
                 }
-                else
-                {
-                    firstFingerprintImage.setImageBitmap(firstImageBitmap);
-                    secondFingerprintImage.setImageBitmap(secondImageBitmap);
 
-                }
+                firstFingerprintImage.setImageBitmap(firstImageBitmap);
+                secondFingerprintImage.setImageBitmap(secondImageBitmap);
             }
         });
     }
@@ -1010,6 +575,235 @@ public class ComparisonActivity extends AppCompatActivity {
         scanSecondFingerprintButton.setEnabled(true);
         analyzeFingerPrintsButton.setEnabled(true);
         defaultAnalyzeButton.setEnabled(true);
+
+    }
+
+    private void paintMatching(){
+        Paint paintMatch = new Paint();
+        paintMatch.setAntiAlias(true);
+        paintMatch.setColor(Color.GREEN);
+        paintMatch.setStyle(Paint.Style.STROKE);
+        paintMatch.setStrokeWidth(2);
+
+        Bitmap workingBitmap = Bitmap.createBitmap(firstImageBitmap);
+        Bitmap mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        canvasA = new Canvas(mutableBitmap);
+
+        for (int i = 0; i<match.length();i++){
+
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = match.getJSONObject(i);
+                JSONObject minutia = jsonObject.getJSONObject("QueryMtia");
+                int x = minutia.getInt("X");
+                int y = minutia.getInt("Y");
+                double angle = minutia.getDouble("Angle");
+                float a = Float.parseFloat(String.valueOf(angle));
+                canvasA.drawCircle(x, y, 5, paintMatch);
+                canvasA.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paintMatch);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
+        firstFingerprintImage.setAdjustViewBounds(true);
+        firstFingerprintImage.setImageBitmap(mutableBitmap);
+
+        Bitmap workingBitmapB = Bitmap.createBitmap(secondImageBitmap);
+        mutableBitmapB = workingBitmapB.copy(Bitmap.Config.ARGB_8888, true);
+
+        canvasB = new Canvas(mutableBitmapB);
+
+        for (int i = 0; i<match.length();i++){
+
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = match.getJSONObject(i);
+                JSONObject minutia = jsonObject.getJSONObject("TemplateMtia");
+                int x = minutia.getInt("X");
+                int y = minutia.getInt("Y");
+                double angle = minutia.getDouble("Angle");
+                float a = Float.parseFloat(String.valueOf(angle));
+
+                canvasB.drawCircle(x, y, 5, paintMatch);
+                canvasB.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paintMatch);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        //resultLabel.setText(information);
+        secondFingerprintImage.setAdjustViewBounds(true);
+        secondFingerprintImage.setImageBitmap(mutableBitmapB);
+
+    }
+
+    private void paintIndividual(){
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setColor(Color.RED);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(2);
+
+        Bitmap workingBitmap = Bitmap.createBitmap(firstImageBitmap);
+        Bitmap mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        canvasA = new Canvas(mutableBitmap);
+        for (int i = 0; i<firstInd.length();i++){
+
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = firstInd.getJSONObject(i);
+                int x = jsonObject.getInt("X");
+                int y = jsonObject.getInt("Y");
+                double angle = jsonObject.getDouble("Angle");
+                float a = Float.parseFloat(String.valueOf(angle));
+                canvasA.drawCircle(x, y, 5, paint);
+                canvasA.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paint);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        firstFingerprintImage.setAdjustViewBounds(true);
+        firstFingerprintImage.setImageBitmap(mutableBitmap);
+
+        Bitmap workingBitmapB = Bitmap.createBitmap(secondImageBitmap);
+        Bitmap mutableBitmapB = workingBitmapB.copy(Bitmap.Config.ARGB_8888, true);
+
+        canvasB = new Canvas(mutableBitmapB);
+        for (int i = 0; i<secondInd.length();i++){
+
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = secondInd.getJSONObject(i);
+                int x = jsonObject.getInt("X");
+                int y = jsonObject.getInt("Y");
+                double angle = jsonObject.getDouble("Angle");
+                float a = Float.parseFloat(String.valueOf(angle));
+
+                canvasB.drawCircle(x, y, 5, paint);
+                canvasB.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paint);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        secondFingerprintImage.setAdjustViewBounds(true);
+        secondFingerprintImage.setImageBitmap(mutableBitmapB);
+    }
+
+    private void paintBothMinutias(){
+
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setColor(Color.RED);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(2);
+
+        Bitmap workingBitmap = Bitmap.createBitmap(firstImageBitmap);
+        Bitmap mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        canvasA = new Canvas(mutableBitmap);
+        for (int i = 0; i<firstInd.length();i++){
+
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = firstInd.getJSONObject(i);
+                int x = jsonObject.getInt("X");
+                int y = jsonObject.getInt("Y");
+                double angle = jsonObject.getDouble("Angle");
+                float a = Float.parseFloat(String.valueOf(angle));
+                canvasA.drawCircle(x, y, 5, paint);
+                canvasA.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paint);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        Paint paintMatch = new Paint();
+        paintMatch.setAntiAlias(true);
+        paintMatch.setColor(Color.GREEN);
+        paintMatch.setStyle(Paint.Style.STROKE);
+        paintMatch.setStrokeWidth(2);
+
+
+        for (int i = 0; i<match.length();i++){
+
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = match.getJSONObject(i);
+                JSONObject minutia = jsonObject.getJSONObject("QueryMtia");
+                int x = minutia.getInt("X");
+                int y = minutia.getInt("Y");
+                double angle = minutia.getDouble("Angle");
+                float a = Float.parseFloat(String.valueOf(angle));
+                canvasA.drawCircle(x, y, 5, paintMatch);
+                canvasA.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paintMatch);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        firstFingerprintImage.setAdjustViewBounds(true);
+        firstFingerprintImage.setImageBitmap(mutableBitmap);
+
+        Bitmap workingBitmapB = Bitmap.createBitmap(secondImageBitmap);
+        Bitmap mutableBitmapB = workingBitmapB.copy(Bitmap.Config.ARGB_8888, true);
+
+        canvasB = new Canvas(mutableBitmapB);
+        for (int i = 0; i<secondInd.length();i++){
+
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = secondInd.getJSONObject(i);
+                int x = jsonObject.getInt("X");
+                int y = jsonObject.getInt("Y");
+                double angle = jsonObject.getDouble("Angle");
+                float a = Float.parseFloat(String.valueOf(angle));
+
+                canvasB.drawCircle(x, y, 5, paint);
+                canvasB.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paint);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        for (int i = 0; i<match.length();i++){
+
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = match.getJSONObject(i);
+                JSONObject minutia = jsonObject.getJSONObject("TemplateMtia");
+                int x = minutia.getInt("X");
+                int y = minutia.getInt("Y");
+                double angle = minutia.getDouble("Angle");
+                float a = Float.parseFloat(String.valueOf(angle));
+
+                canvasB.drawCircle(x, y, 5, paintMatch);
+                canvasB.drawLine(x, y, x+8*Float.parseFloat(String.valueOf(Math.cos(a))), y+8*Float.parseFloat(String.valueOf(Math.sin(a))), paintMatch);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+        secondFingerprintImage.setAdjustViewBounds(true);
+        secondFingerprintImage.setImageBitmap(mutableBitmapB);
+
 
     }
 
